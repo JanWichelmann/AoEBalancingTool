@@ -4,3 +4,6 @@
 [submodule "IORAMHelper"]
 	path = IORAMHelper
 	url = git@github.com:Janworks/IORAMHelper.git
+[submodule "WpfPlus"]
+	path = WpfPlus
+	url = git@github.com:MarcusWichelmann/WpfPlus.git
