@@ -52,7 +52,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters.cs" />
+    <Compile Include="DiffElementContainers.cs" />
+    <Compile Include="DiffElements.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="SettingBindingExtension.cs" />
+    <Compile Include="ValidationRules.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -70,11 +79,6 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -101,6 +105,13 @@
       <Project>{e916caa5-59a9-4f62-a8fb-0ceec2d840b8}</Project>
       <Name>IORAMHelper</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WpfPlus\WpfPlus\WpfPlus.csproj">
+      <Project>{ccfe878e-86d2-4c8b-8b76-e84600273549}</Project>
+      <Name>WpfPlus</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ResourceTypes.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
