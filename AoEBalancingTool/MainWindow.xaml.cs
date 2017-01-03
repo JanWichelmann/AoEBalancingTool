@@ -59,6 +59,11 @@ namespace AoEBalancingTool
 		/// </summary>
 		private KeyValuePair<short, UnitEntry> _selectedUnitEntry;
 
+		/// <summary>
+		/// The window last used for the base file selection. As windows cannot be reopened, a new one has to be created every time a file is loaded.
+		/// </summary>
+		private FileSelectionWindow _fileSelectionWindow = null;
+
 		#endregion
 
 		#region Functions
@@ -114,34 +119,28 @@ namespace AoEBalancingTool
 
 		#region Event handlers
 
-		private void _aoe2DataFolderButton_Click(object sender, RoutedEventArgs e)
-		{
-			// Create and show dialog
-			System.Windows.Forms.FolderBrowserDialog folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-			if(Directory.Exists(_aoe2DataFolderTextBox.Text))
-				folderBrowserDialog.SelectedPath = _aoe2DataFolderTextBox.Text;
-			folderBrowserDialog.Description = "Pick DATA folder...";
-			if(folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-				_aoe2DataFolderTextBox.Text = folderBrowserDialog.SelectedPath;
-		}
-
 		private void _loadDatButton_Click(object sender, RoutedEventArgs e)
 		{
+			// Show window (create new first, as closed windows cannot be reopened)
+			_fileSelectionWindow = new FileSelectionWindow();
+			if(!(_fileSelectionWindow.ShowDialog() ?? false))
+				return;
+
 			// Catch errors
 			_languageFiles = new List<string>();
 			try
 			{
 				// Find language files
-				if(File.Exists(System.IO.Path.Combine(_aoe2DataFolderTextBox.Text, "language_x1_p1.dll")))
-					_languageFiles.Add("language_x1_p1.dll");
-				if(File.Exists(System.IO.Path.Combine(_aoe2DataFolderTextBox.Text, "language_x1.dll")))
-					_languageFiles.Add("language_x1.dll");
-				if(File.Exists(System.IO.Path.Combine(_aoe2DataFolderTextBox.Text, "LANGUAGE.dll")))
-					_languageFiles.Add("LANGUAGE.dll");
+				if(File.Exists(_fileSelectionWindow.LanguageX1P1DllFilePath))
+					_languageFiles.Add(_fileSelectionWindow.LanguageX1P1DllFilePath);
+				if(File.Exists(_fileSelectionWindow.LanguageX1DllFilePath))
+					_languageFiles.Add(_fileSelectionWindow.LanguageX1DllFilePath);
+				if(File.Exists(_fileSelectionWindow.LanguageDllFilePath))
+					_languageFiles.Add(_fileSelectionWindow.LanguageDllFilePath);
 
 				// Load genie file
 				_genieFile =
-					new GenieLibrary.GenieFile(GenieLibrary.GenieFile.DecompressData(new IORAMHelper.RAMBuffer(System.IO.Path.Combine(_aoe2DataFolderTextBox.Text, "empires2_x1_p1.dat"))));
+					new GenieLibrary.GenieFile(GenieLibrary.GenieFile.DecompressData(new IORAMHelper.RAMBuffer(_fileSelectionWindow.BaseGenieFilePath)));
 			}
 			catch(IOException ex)
 			{
@@ -152,6 +151,10 @@ namespace AoEBalancingTool
 
 			// Create balancing data object
 			BalancingFile = new BalancingFile(_genieFile, _languageFiles.ToArray());
+			_balancingFilePath = "";
+
+			// Reset window title
+			CurrentWindowTitle = WindowTitlePrefix;
 
 			// Enable UI controls
 			EnableEditorPanel = true;
@@ -173,7 +176,7 @@ namespace AoEBalancingTool
 			{
 				// Reload internal genie file, apply changes and save
 				GenieLibrary.GenieFile exportFile =
-					new GenieLibrary.GenieFile(GenieLibrary.GenieFile.DecompressData(new IORAMHelper.RAMBuffer(System.IO.Path.Combine(_aoe2DataFolderTextBox.Text, "empires2_x1_p1.dat"))));
+					new GenieLibrary.GenieFile(GenieLibrary.GenieFile.DecompressData(new IORAMHelper.RAMBuffer(_fileSelectionWindow.BaseGenieFilePath)));
 				BalancingFile.WriteChangesToGenieFile(exportFile);
 				IORAMHelper.RAMBuffer exportFileBuffer = new IORAMHelper.RAMBuffer();
 				exportFile.WriteData(exportFileBuffer);

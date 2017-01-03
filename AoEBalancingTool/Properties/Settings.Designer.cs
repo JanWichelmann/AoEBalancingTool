@@ -26,12 +26,48 @@ namespace AoEBalancingTool.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string AoE2DataFolderPath {
+        public string BaseGenieFilePath {
             get {
-                return ((string)(this["AoE2DataFolderPath"]));
+                return ((string)(this["BaseGenieFilePath"]));
             }
             set {
-                this["AoE2DataFolderPath"] = value;
+                this["BaseGenieFilePath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LanguageDllFilePath {
+            get {
+                return ((string)(this["LanguageDllFilePath"]));
+            }
+            set {
+                this["LanguageDllFilePath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LanguageX1DllFilePath {
+            get {
+                return ((string)(this["LanguageX1DllFilePath"]));
+            }
+            set {
+                this["LanguageX1DllFilePath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LanguageX1P1DllFilePath {
+            get {
+                return ((string)(this["LanguageX1P1DllFilePath"]));
+            }
+            set {
+                this["LanguageX1P1DllFilePath"] = value;
             }
         }
     }

@@ -55,6 +55,9 @@
     <Compile Include="Converters.cs" />
     <Compile Include="DiffElementContainers.cs" />
     <Compile Include="DiffElements.cs" />
+    <Compile Include="FileSelectionWindow.xaml.cs">
+      <DependentUpon>FileSelectionWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -62,6 +65,10 @@
     </Compile>
     <Compile Include="SettingBindingExtension.cs" />
     <Compile Include="ValidationRules.cs" />
+    <Page Include="FileSelectionWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

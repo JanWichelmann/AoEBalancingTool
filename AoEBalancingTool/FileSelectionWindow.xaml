@@ -1,0 +1,46 @@
+﻿<Window x:Class="AoEBalancingTool.FileSelectionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AoEBalancingTool"
+        xmlns:props="clr-namespace:AoEBalancingTool.Properties"
+        xmlns:plus="clr-namespace:WpfPlus.Controls;assembly=WpfPlus"
+        Style="{StaticResource WindowStyle}"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance local:FileSelectionWindow}"
+        Title="Select files..." Height="225" Width="450">
+    <plus:SpacedGrid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <plus:SimpleForm Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="80" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0">Base DAT file:</TextBlock>
+            <TextBox Grid.Column="1" Text="{Binding BaseGenieFilePath}" />
+            <Button x:Name="_browseBaseGenieFileButton" Grid.Column="2" Click="_browseBaseGenieFileButton_OnClick">Browse...</Button>
+
+            <TextBlock Grid.Column="0">LANGUAGE.DLL file:</TextBlock>
+            <TextBox Grid.Column="1" Text="{Binding LanguageDllFilePath}" />
+            <Button x:Name="_browseLanguageDllFileButton" Grid.Column="2" Click="_browseLanguageDllFileButton_OnClick">Browse...</Button>
+
+            <TextBlock Grid.Column="0">language_x1.dll file:</TextBlock>
+            <TextBox Grid.Column="1" Text="{Binding LanguageX1DllFilePath}" />
+            <Button x:Name="_browseLanguageX1DllFileButton" Grid.Column="2" Click="_browseLanguageX1DllFileButton_OnClick">Browse...</Button>
+
+            <TextBlock Grid.Column="0">language_x1_p1.dll file:</TextBlock>
+            <TextBox Grid.Column="1" Text="{Binding LanguageX1P1DllFilePath}" />
+            <Button x:Name="_browseLanguageX1P1DllFileButton" Grid.Column="2" Click="_browseLanguageX1P1DllFileButton_OnClick">Browse...</Button>
+        </plus:SimpleForm>
+        <plus:SpacedStackPanel Grid.Row="1" HorizontalAlignment="Right" Orientation="Horizontal">
+            <Button x:Name="_okButton" Width="80" Click="_okButton_OnClick">OK</Button>
+            <Button x:Name="_cancelButton" Width="80" Click="_cancelButton_OnClick">Cancel</Button>
+        </plus:SpacedStackPanel>
+    </plus:SpacedGrid>
+</Window>
