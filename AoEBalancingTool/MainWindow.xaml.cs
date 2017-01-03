@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -82,6 +83,18 @@ namespace AoEBalancingTool
 			_cost1TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
 			_cost2TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
 			_cost3TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
+
+			// Initialize armor class list
+			ArmorClasses = new ObservableCollection<KeyValuePair<ushort, string>>();
+			string[] armorClasses = Properties.Resources.ArmorClasses.Split('\n');
+			foreach(string armorClassEntry in armorClasses)
+			{
+				// Split current entry into ID and value
+				string[] armorClassEntryParts = armorClassEntry.Split('=');
+				ArmorClasses.Add(new KeyValuePair<ushort, string>(ushort.Parse(armorClassEntryParts[0]), armorClassEntryParts[1].Trim()));
+			}
+			_attacksGridClassColumn.ItemsSource = ArmorClasses;
+			_armorsGridClassColumn.ItemsSource = ArmorClasses;
 
 			// Set data source
 			DataContext = this;
@@ -322,6 +335,11 @@ namespace AoEBalancingTool
 		/// The resource type list for the cost fields.
 		/// </summary>
 		public List<KeyValuePair<short, string>> ResourceTypes { get; }
+
+		/// <summary>
+		/// The armor class list for the attacks and armors fields.
+		/// </summary>
+		public ObservableCollection<KeyValuePair<ushort, string>> ArmorClasses { get; }
 
 		#endregion
 	}

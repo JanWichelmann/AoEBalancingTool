@@ -61,7 +61,17 @@ namespace AoEBalancingTool.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die 0=Food Storage
+        ///   Sucht eine lokalisierte Zeichenfolge, die  ähnelt.
+        /// </summary>
+        internal static string ArmorClasses {
+            get {
+                return ResourceManager.GetString("ArmorClasses", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die -1=None
+        ///0=Food Storage
         ///1=Wood Storage
         ///2=Stone Storage
         ///3=Gold Storage 
@@ -87,8 +97,7 @@ namespace AoEBalancingTool.Properties {
         ///23=Castle Age tech ID
         ///24=Imperial Age tech ID
         ///25=Feudal Age tech ID
-        ///26=Attack Warning Sound ID
-        /// [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///26=Attack Warning S [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string ResourceTypes {
             get {

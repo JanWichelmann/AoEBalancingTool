@@ -141,7 +141,11 @@ namespace AoEBalancingTool
 		/// <param name="owningObject">The object containing the diff element.</param>
 		/// <param name="baseAttackArmorEntries">The base value of the diff element.</param>
 		public AttackArmorEntryListDiffElement(DiffElementContainer owningObject, List<AttackArmorEntry> baseAttackArmorEntries)
-			: base(owningObject, new EquatableObservableCollection<AttackArmorEntry>(baseAttackArmorEntries)) { }
+			: base(owningObject, new EquatableObservableCollection<AttackArmorEntry>(baseAttackArmorEntries))
+		{
+			// Base value should be a copy of the original data element -> deep copy of list
+			_baseValue = new EquatableObservableCollection<AttackArmorEntry>(baseAttackArmorEntries.Select(aae => new AttackArmorEntry(aae.ArmorClass, aae.Amount)));
+		}
 
 		private void AttackArmorEntry_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
@@ -191,7 +195,7 @@ namespace AoEBalancingTool
 	/// <summary>
 	/// Represents an attack/armor class entry.
 	/// </summary>
-	public class AttackArmorEntry : INotifyPropertyChanged
+	public class AttackArmorEntry : INotifyPropertyChanged, IEquatable<AttackArmorEntry>
 	{
 		/// <summary>
 		/// The armor class.
@@ -227,8 +231,18 @@ namespace AoEBalancingTool
 			{
 				// Update value and notify parent objects
 				_amount = value;
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ArmorClass)));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Amount)));
 			}
+		}
+
+		/// <summary>
+		/// Creates a new empty entry.
+		/// </summary>
+		public AttackArmorEntry()
+		{
+			// Set default values
+			ArmorClass = 0;
+			Amount = 0;
 		}
 
 		/// <summary>
@@ -253,6 +267,13 @@ namespace AoEBalancingTool
 		/// </summary>
 		/// <returns></returns>
 		public override int GetHashCode() => ArmorClass << 16 | Amount;
+
+		/// <summary>
+		/// Compares this entry object with another.
+		/// </summary>
+		/// <param name="other">Der object to be compared with.</param>
+		/// <returns></returns>
+		public bool Equals(AttackArmorEntry other) => other != null && _armorClass == other._armorClass && _amount == other._amount;
 	}
 
 	/// <summary>
