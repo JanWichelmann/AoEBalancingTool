@@ -60,6 +60,11 @@ namespace AoEBalancingTool
 		private KeyValuePair<short, UnitEntry> _selectedUnitEntry;
 
 		/// <summary>
+		/// The currently selected research entry.
+		/// </summary>
+		private KeyValuePair<short, ResearchEntry> _selectedResearchEntry;
+
+		/// <summary>
 		/// The window last used for the base file selection. As windows cannot be reopened, a new one has to be created every time a file is loaded.
 		/// </summary>
 		private FileSelectionWindow _fileSelectionWindow = null;
@@ -85,9 +90,12 @@ namespace AoEBalancingTool
 				string[] resourceTypeEntryParts = resourceTypeEntry.Split('=');
 				ResourceTypes.Add(new KeyValuePair<short, string>(short.Parse(resourceTypeEntryParts[0]), resourceTypeEntryParts[1].Trim()));
 			}
-			_cost1TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
-			_cost2TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
-			_cost3TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
+			_unitCost1TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
+			_unitCost2TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
+			_unitCost3TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
+			_researchCost1TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
+			_researchCost2TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
+			_researchCost3TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
 
 			// Initialize armor class list
 			ArmorClasses = new ObservableCollection<KeyValuePair<ushort, string>>();
@@ -126,6 +134,14 @@ namespace AoEBalancingTool
 			if(!(_fileSelectionWindow.ShowDialog() ?? false))
 				return;
 
+			// Check whether genie file exists
+			if(!File.Exists(_fileSelectionWindow.BaseGenieFilePath))
+			{
+				// Error
+				MessageBox.Show($"The given genie file path is invalid: '{_fileSelectionWindow.BaseGenieFilePath}'");
+				return;
+			}
+
 			// Catch errors
 			_languageFiles = new List<string>();
 			try
@@ -152,6 +168,10 @@ namespace AoEBalancingTool
 			// Create balancing data object
 			BalancingFile = new BalancingFile(_genieFile, _languageFiles.ToArray());
 			_balancingFilePath = "";
+
+			// Set filterable lists
+			UnitEntryList = new GenericCollectionView<KeyValuePair<short, UnitEntry>>(CollectionViewSource.GetDefaultView(_balancingFile.UnitEntries));
+			OnPropertyChanged(nameof(UnitEntryList));
 
 			// Reset window title
 			CurrentWindowTitle = WindowTitlePrefix;
@@ -207,15 +227,19 @@ namespace AoEBalancingTool
 				// Load file
 				BalancingFile = new BalancingFile(_genieFile, openFileDialog.FileName, _languageFiles.ToArray());
 				_balancingFilePath = openFileDialog.FileName;
-
-				// Update window title
-				CurrentWindowTitle = WindowTitlePrefix + " [" + _balancingFilePath + "]";
 			}
 			catch(IOException ex)
 			{
 				// Error
 				MessageBox.Show($"Unable to load given file: {ex.Message}");
 			}
+
+			// Set filterable lists
+			UnitEntryList = new GenericCollectionView<KeyValuePair<short, UnitEntry>>(CollectionViewSource.GetDefaultView(_balancingFile.UnitEntries));
+			OnPropertyChanged(nameof(UnitEntryList));
+
+			// Update window title
+			CurrentWindowTitle = WindowTitlePrefix + " [" + _balancingFilePath + "]";
 		}
 
 		private void _saveFileButton_Click(object sender, RoutedEventArgs e)
@@ -261,6 +285,16 @@ namespace AoEBalancingTool
 			CurrentWindowTitle = $"{WindowTitlePrefix} [{_balancingFilePath}]";
 		}
 
+		private void _filterUnitEntriesTextBox_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			// Filter
+			if(string.IsNullOrWhiteSpace(_filterUnitEntriesTextBox.Text))
+				UnitEntryList.Filter = null;
+			else
+				UnitEntryList.Filter = ue => ue.Value.DisplayName.IndexOf(_filterUnitEntriesTextBox.Text, StringComparison.OrdinalIgnoreCase) >= 0;
+			UnitEntryList.Refresh();
+		}
+
 		#endregion
 
 		#region Events
@@ -268,7 +302,8 @@ namespace AoEBalancingTool
 		/// <summary>
 		/// Implementation of PropertyChanged interface.
 		/// </summary>
-		public event PropertyChangedEventHandler PropertyChanged;
+		public
+			event PropertyChangedEventHandler PropertyChanged;
 
 		#endregion
 
@@ -276,15 +311,19 @@ namespace AoEBalancingTool
 
 		#region Hidden fields
 
-		private string _currentWindowTitle = WindowTitlePrefix;
-		private bool _enableEditorPanel = false;
+		private
+			string _currentWindowTitle = WindowTitlePrefix;
+
+		private
+			bool _enableEditorPanel = false;
 
 		#endregion
 
 		/// <summary>
 		/// The current window title.
 		/// </summary>
-		public string CurrentWindowTitle
+		public
+			string CurrentWindowTitle
 		{
 			get { return _currentWindowTitle; }
 			set
@@ -297,7 +336,8 @@ namespace AoEBalancingTool
 		/// <summary>
 		/// Controls the availability of the editing panel.
 		/// </summary>
-		public bool EnableEditorPanel
+		public
+			bool EnableEditorPanel
 		{
 			get { return _enableEditorPanel; }
 			set
@@ -310,7 +350,8 @@ namespace AoEBalancingTool
 		/// <summary>
 		/// The current balancing file.
 		/// </summary>
-		public BalancingFile BalancingFile
+		public
+			BalancingFile BalancingFile
 		{
 			get { return _balancingFile; }
 			set
@@ -324,7 +365,8 @@ namespace AoEBalancingTool
 		/// <summary>
 		/// The currently selected unit entry.
 		/// </summary>
-		public KeyValuePair<short, UnitEntry> SelectedUnitEntry
+		public
+			KeyValuePair<short, UnitEntry> SelectedUnitEntry
 		{
 			get { return _selectedUnitEntry; }
 			set
@@ -335,14 +377,36 @@ namespace AoEBalancingTool
 		}
 
 		/// <summary>
+		/// The currently selected research entry.
+		/// </summary>
+		public
+			KeyValuePair<short, ResearchEntry> SelectedResearchEntry
+		{
+			get { return _selectedResearchEntry; }
+			set
+			{
+				_selectedResearchEntry = value;
+				OnPropertyChanged(nameof(SelectedResearchEntry));
+			}
+		}
+
+		/// <summary>
+		/// The filterable list of units.
+		/// </summary>
+		public
+			GenericCollectionView<KeyValuePair<short, UnitEntry>> UnitEntryList { get; private set; }
+
+		/// <summary>
 		/// The resource type list for the cost fields.
 		/// </summary>
-		public List<KeyValuePair<short, string>> ResourceTypes { get; }
+		public
+			List<KeyValuePair<short, string>> ResourceTypes { get; }
 
 		/// <summary>
 		/// The armor class list for the attacks and armors fields.
 		/// </summary>
-		public ObservableCollection<KeyValuePair<ushort, string>> ArmorClasses { get; }
+		public
+			ObservableCollection<KeyValuePair<ushort, string>> ArmorClasses { get; }
 
 		#endregion
 	}

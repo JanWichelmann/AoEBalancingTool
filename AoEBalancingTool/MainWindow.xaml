@@ -9,7 +9,11 @@
         Style="{StaticResource WindowStyle}"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:MainWindow}"
-        Title="{Binding CurrentWindowTitle}" Height="768" Width="1280" MinHeight="768" MinWidth="1280">
+        Title="{Binding CurrentWindowTitle}" Height="730" Width="1050" MinHeight="100" MinWidth="100"><!-- TODO -->
+    <Window.Resources>
+        <local:BoolToTextDecorationConverter x:Key="BoolToTextDecorationConverterObj" />
+        <local:NullCheckToBoolConverter x:Key="NullCheckToBoolConverterObj" />
+    </Window.Resources>
     <plus:SpacedGrid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -17,148 +21,558 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="1050" />
         </Grid.ColumnDefinitions>
-        <plus:SpacedStackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+        <plus:SpacedStackPanel Grid.Row="0" Orientation="Horizontal">
             <Button x:Name="_loadDatButton" Click="_loadDatButton_Click" VerticalAlignment="Top">Load base DAT...</Button>
             <Button x:Name="_exportDatButton" Click="_exportDatButton_Click" IsEnabled="{Binding EnableEditorPanel}">Export DAT with changes...</Button>
         </plus:SpacedStackPanel>
-        <plus:SpacedStackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal"
+        <plus:SpacedStackPanel Grid.Row="0" Orientation="Horizontal"
                                HorizontalAlignment="Right">
             <Button x:Name="_loadFileButton" Click="_loadFileButton_Click" IsEnabled="{Binding EnableEditorPanel}">Load file...</Button>
             <Button x:Name="_saveFileButton" Click="_saveFileButton_Click" IsEnabled="{Binding EnableEditorPanel}">Save file...</Button>
             <Button x:Name="_saveFileAsButton" Click="_saveFileAsButton_Click" IsEnabled="{Binding EnableEditorPanel}">Save file as...</Button>
         </plus:SpacedStackPanel>
-        <ListBox Grid.Row="1" Grid.Column="0" IsEnabled="{Binding EnableEditorPanel}"
-                 ItemsSource="{Binding BalancingFile.UnitEntries}" SelectedItem="{Binding SelectedUnitEntry}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock x:Name="_unitEntriesIdCell" Text="{Binding Key}" Width="35" />
-                        <TextBlock x:Name="_unitEntriesNameCell" Text="{Binding Value.DisplayName}" />
-                    </StackPanel>
-                    <DataTemplate.Triggers>
-                        <DataTrigger Binding="{Binding Value.HasModifiedFields}" Value="True">
-                            <Setter TargetName="_unitEntriesIdCell" Property="FontWeight" Value="Bold" />
-                            <Setter TargetName="_unitEntriesNameCell" Property="FontWeight" Value="Bold" />
-                        </DataTrigger>
-                    </DataTemplate.Triggers>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        <ScrollViewer Grid.Row="1" Grid.Column="1" HorizontalScrollBarVisibility="Disabled"
-                      VerticalScrollBarVisibility="Auto">
-            <Grid IsEnabled="{Binding EnableEditorPanel}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <Grid.Resources>
-                    <local:BoolToTextDecorationConverter x:Key="BoolToTextDecorationConverterObj" />
-                    <local:NullCheckToBoolConverter x:Key="NullCheckToBoolConverterObj" />
-                </Grid.Resources>
-                <StackPanel Grid.Column="0" Orientation="Vertical">
-                    <GroupBox Header="Main stats" Margin="3" DataContext="{Binding SelectedUnitEntry.Value}">
-                        <plus:SimpleForm Margin="5">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="50" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="50" />
-                            </Grid.ColumnDefinitions>
-
-                            <TextBlock Grid.Column="0"
-                                       TextDecorations="{Binding HitPoints.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding HitPoints, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Hit Points:
-                            </TextBlock>
-                            <TextBox Grid.Column="1"
-                                     Text="{Binding HitPoints.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding HitPoints, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                            <TextBlock Grid.Column="3"
-                                       TextDecorations="{Binding Speed.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding Speed, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Speed:
-                            </TextBlock>
-                            <TextBox Grid.Column="4"
-                                     Text="{Binding Speed.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding Speed, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                            <TextBlock Grid.Column="0"
-                                       TextDecorations="{Binding RotationSpeed.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding RotationSpeed, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Rotation Speed:
-                            </TextBlock>
-                            <TextBox Grid.Column="1"
-                                     Text="{Binding RotationSpeed.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding RotationSpeed, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                            <TextBlock Grid.Column="3"
-                                       TextDecorations="{Binding LineOfSight.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding LineOfSight, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Line Of Sight:
-                            </TextBlock>
-                            <TextBox Grid.Column="4"
-                                     Text="{Binding LineOfSight.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding LineOfSight, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                            <TextBlock Grid.Column="0"
-                                       TextDecorations="{Binding SearchRadius.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding SearchRadius, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Search Radius:
-                            </TextBlock>
-                            <TextBox Grid.Column="1"
-                                     Text="{Binding SearchRadius.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding SearchRadius, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-                        </plus:SimpleForm>
-                    </GroupBox>
-                    <GroupBox Header="Garrison values" Margin="3" DataContext="{Binding SelectedUnitEntry.Value}">
-                        <plus:SimpleForm Margin="5">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="50" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="50" />
-                            </Grid.ColumnDefinitions>
-
-                            <TextBlock Grid.Column="0"
-                                       TextDecorations="{Binding GarrisonCapacity.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding GarrisonCapacity, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Unit Capacity:
-                            </TextBlock>
-                            <TextBox Grid.Column="1"
-                                     Text="{Binding GarrisonCapacity.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding GarrisonCapacity, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                            <TextBlock Grid.Column="3"
-                                       TextDecorations="{Binding GarrisonHealRateFactor.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding GarrisonHealRateFactor, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Heal Rate Factor:
-                            </TextBlock>
-                            <TextBox Grid.Column="4"
-                                     Text="{Binding GarrisonHealRateFactor.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding GarrisonHealRateFactor, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-                        </plus:SimpleForm>
-                    </GroupBox>
-                    <GroupBox Header="Creation values" Margin="3" DataContext="{Binding SelectedUnitEntry.Value}">
-                        <plus:SimpleForm Margin="5">
+        <TabControl Grid.Row="1" IsEnabled="{Binding EnableEditorPanel}">
+            <TabItem Header="Units">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="200" />
+                        <ColumnDefinition Width="800" />
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBox Grid.Row="0" x:Name="_filterUnitEntriesTextBox"
+                                 TextChanged="_filterUnitEntriesTextBox_TextChanged" />
+                        <ListBox Grid.Row="1"
+                                 ItemsSource="{Binding UnitEntryList}" IsSynchronizedWithCurrentItem="True"
+                                 SelectedItem="{Binding SelectedUnitEntry}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock x:Name="_unitEntriesIdCell" Text="{Binding Key}" Width="35" />
+                                        <TextBlock x:Name="_unitEntriesNameCell" Text="{Binding Value.DisplayName}" />
+                                    </StackPanel>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding Value.HasModifiedFields}" Value="True">
+                                            <Setter TargetName="_unitEntriesIdCell" Property="FontWeight" Value="Bold" />
+                                            <Setter TargetName="_unitEntriesNameCell" Property="FontWeight"
+                                                    Value="Bold" />
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                    <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto">
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Vertical">
+                                <GroupBox Header="Main stats" Margin="3"
+                                          DataContext="{Binding SelectedUnitEntry.Value}">
+                                    <plus:SimpleForm Margin="5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="50" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="50" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0"
+                                                   TextDecorations="{Binding HitPoints.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding HitPoints, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Hit Points:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="1"
+                                                 Text="{Binding HitPoints.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding HitPoints, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                        <TextBlock Grid.Column="3"
+                                                   TextDecorations="{Binding Speed.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding Speed, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Speed:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="4"
+                                                 Text="{Binding Speed.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding Speed, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                        <TextBlock Grid.Column="0"
+                                                   TextDecorations="{Binding RotationSpeed.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding RotationSpeed, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Rotation Speed:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="1"
+                                                 Text="{Binding RotationSpeed.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding RotationSpeed, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                        <TextBlock Grid.Column="3"
+                                                   TextDecorations="{Binding LineOfSight.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding LineOfSight, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Line Of Sight:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="4"
+                                                 Text="{Binding LineOfSight.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding LineOfSight, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                        <TextBlock Grid.Column="0"
+                                                   TextDecorations="{Binding SearchRadius.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding SearchRadius, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Search Radius:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="1"
+                                                 Text="{Binding SearchRadius.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding SearchRadius, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+                                    </plus:SimpleForm>
+                                </GroupBox>
+                                <GroupBox Header="Garrison values" Margin="3"
+                                          DataContext="{Binding SelectedUnitEntry.Value}">
+                                    <plus:SimpleForm Margin="5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="50" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="50" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0"
+                                                   TextDecorations="{Binding GarrisonCapacity.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding GarrisonCapacity, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Unit Capacity:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="1"
+                                                 Text="{Binding GarrisonCapacity.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding GarrisonCapacity, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                        <TextBlock Grid.Column="3"
+                                                   TextDecorations="{Binding GarrisonHealRateFactor.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding GarrisonHealRateFactor, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Heal Rate Factor:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="4"
+                                                 Text="{Binding GarrisonHealRateFactor.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding GarrisonHealRateFactor, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+                                    </plus:SimpleForm>
+                                </GroupBox>
+                                <GroupBox Header="Creation values" Margin="3"
+                                          DataContext="{Binding SelectedUnitEntry.Value}">
+                                    <plus:SimpleForm Margin="5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0"
+                                                   TextDecorations="{Binding TrainTime.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding TrainTime, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Train Time:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="1"
+                                                 Text="{Binding TrainTime.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding TrainTime, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                        <TextBlock Grid.Column="0"
+                                                   TextDecorations="{Binding Cost1.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding Cost1, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Cost 1:
+                                        </TextBlock>
+                                        <plus:SpacedStackPanel Grid.Column="1" Orientation="Horizontal"
+                                                               IsEnabled="{Binding Cost1, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            <CheckBox VerticalAlignment="Center"
+                                                      IsChecked="{Binding Cost1.Value.Paid, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                                            <ComboBox x:Name="_unitCost1TypeComboBox" Width="180"
+                                                      SelectedValue="{Binding Cost1.Value.ResourceType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                      SelectedValuePath="Key" DisplayMemberPath="Value" />
+                                            <TextBox Width="50">
+                                                <TextBox.Text>
+                                                    <Binding Path="Cost1.Value.Amount"
+                                                             UpdateSourceTrigger="PropertyChanged"
+                                                             Mode="TwoWay" />
+                                                </TextBox.Text>
+                                            </TextBox>
+                                        </plus:SpacedStackPanel>
+
+                                        <TextBlock Grid.Column="0"
+                                                   TextDecorations="{Binding Cost2.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding Cost2, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Cost 2:
+                                        </TextBlock>
+                                        <plus:SpacedStackPanel Grid.Column="1" Orientation="Horizontal"
+                                                               IsEnabled="{Binding Cost2, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            <CheckBox VerticalAlignment="Center"
+                                                      IsChecked="{Binding Cost2.Value.Paid, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                                            <ComboBox x:Name="_unitCost2TypeComboBox" Width="180"
+                                                      SelectedValue="{Binding Cost2.Value.ResourceType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                      SelectedValuePath="Key" DisplayMemberPath="Value" />
+                                            <TextBox Width="50">
+                                                <TextBox.Text>
+                                                    <Binding Path="Cost2.Value.Amount"
+                                                             UpdateSourceTrigger="PropertyChanged"
+                                                             Mode="TwoWay" />
+                                                </TextBox.Text>
+                                            </TextBox>
+                                        </plus:SpacedStackPanel>
+
+                                        <TextBlock Grid.Column="0"
+                                                   TextDecorations="{Binding Cost3.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding Cost3, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Cost 3:
+                                        </TextBlock>
+                                        <plus:SpacedStackPanel Grid.Column="1" Orientation="Horizontal"
+                                                               IsEnabled="{Binding Cost3, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            <CheckBox VerticalAlignment="Center"
+                                                      IsChecked="{Binding Cost3.Value.Paid, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                                            <ComboBox x:Name="_unitCost3TypeComboBox" Width="180"
+                                                      SelectedValue="{Binding Cost3.Value.ResourceType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                      SelectedValuePath="Key" DisplayMemberPath="Value" />
+                                            <TextBox Width="50">
+                                                <TextBox.Text>
+                                                    <Binding Path="Cost3.Value.Amount"
+                                                             UpdateSourceTrigger="PropertyChanged"
+                                                             Mode="TwoWay" />
+                                                </TextBox.Text>
+                                            </TextBox>
+                                        </plus:SpacedStackPanel>
+                                    </plus:SimpleForm>
+                                </GroupBox>
+                                <GroupBox Header="Armor values" Margin="3"
+                                          DataContext="{Binding SelectedUnitEntry.Value}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <plus:SimpleForm Margin="5" Grid.Row="0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="50" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="50" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0"
+                                                       TextDecorations="{Binding DisplayedMeleeArmor.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                       IsEnabled="{Binding DisplayedMeleeArmor, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                                Displayed Melee Armor:
+                                            </TextBlock>
+                                            <TextBox Grid.Column="1"
+                                                     Text="{Binding DisplayedMeleeArmor.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                     IsEnabled="{Binding DisplayedMeleeArmor, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                            <TextBlock Grid.Column="2"
+                                                       TextDecorations="{Binding DisplayedPierceArmor.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                       IsEnabled="{Binding DisplayedPierceArmor, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                                Displayed Pierce Armor:
+                                            </TextBlock>
+                                            <TextBox Grid.Column="3"
+                                                     Text="{Binding DisplayedPierceArmor.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                     IsEnabled="{Binding DisplayedPierceArmor, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+                                        </plus:SimpleForm>
+                                        <plus:SpacedGrid Margin="5" Grid.Row="1">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="300" />
+                                                <!-- TODO auto fill with "*" not working? -->
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0"
+                                                       TextDecorations="{Binding Armors.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                       IsEnabled="{Binding Armors, Converter={StaticResource NullCheckToBoolConverterObj}}"
+                                                       VerticalAlignment="Center">
+                                                Armors:
+                                            </TextBlock>
+                                            <DataGrid Grid.Column="1" ItemsSource="{Binding Armors.Value}"
+                                                      AutoGenerateColumns="False"
+                                                      CanUserAddRows="True" Height="150">
+                                                <DataGrid.Columns>
+                                                    <DataGridComboBoxColumn x:Name="_armorsGridClassColumn"
+                                                                            Header="Class"
+                                                                            SelectedValueBinding="{Binding ArmorClass, Mode=TwoWay}"
+                                                                            Width="*" SelectedValuePath="Key"
+                                                                            DisplayMemberPath="Value" />
+                                                    <DataGridTextColumn Header="Value"
+                                                                        Binding="{Binding Amount, Mode=TwoWay}"
+                                                                        Width="50" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </plus:SpacedGrid>
+                                    </Grid>
+                                </GroupBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Vertical">
+                                <GroupBox Header="Projectile data" Margin="3"
+                                          DataContext="{Binding SelectedUnitEntry.Value}">
+                                    <plus:SimpleForm Margin="5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="50" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="50" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0"
+                                                   TextDecorations="{Binding ProjectileCount.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding ProjectileCount, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Count:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="1"
+                                                 Text="{Binding ProjectileCount.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding ProjectileCount, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                        <TextBlock Grid.Column="3"
+                                                   TextDecorations="{Binding ProjectileGraphicDisplacementX.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding ProjectileGraphicDisplacementX, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Graphic Displacement X:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="4"
+                                                 Text="{Binding ProjectileGraphicDisplacementX.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding ProjectileGraphicDisplacementX, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                        <TextBlock Grid.Column="0"
+                                                   TextDecorations="{Binding ProjectileCountOnFullGarrison.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding ProjectileCountOnFullGarrison, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Count On Full Garrison:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="1"
+                                                 Text="{Binding ProjectileCountOnFullGarrison.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding ProjectileCountOnFullGarrison, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                        <TextBlock Grid.Column="3"
+                                                   TextDecorations="{Binding ProjectileGraphicDisplacementY.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding ProjectileGraphicDisplacementY, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Graphic Displacement Y:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="4"
+                                                 Text="{Binding ProjectileGraphicDisplacementY.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding ProjectileGraphicDisplacementY, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                        <TextBlock Grid.Column="0"
+                                                   TextDecorations="{Binding ProjectileFrameDelay.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding ProjectileFrameDelay, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Frame Delay:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="1"
+                                                 Text="{Binding ProjectileFrameDelay.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding ProjectileFrameDelay, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                        <TextBlock Grid.Column="3"
+                                                   TextDecorations="{Binding ProjectileGraphicDisplacementZ.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding ProjectileGraphicDisplacementZ, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Graphic Displacement Z:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="4"
+                                                 Text="{Binding ProjectileGraphicDisplacementZ.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding ProjectileGraphicDisplacementZ, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                        <TextBlock Grid.Column="0"
+                                                   TextDecorations="{Binding ProjectileAccuracyPercent.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding ProjectileAccuracyPercent, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Accuracy Percent:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="1"
+                                                 Text="{Binding ProjectileAccuracyPercent.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding ProjectileAccuracyPercent, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                        <TextBlock Grid.Column="3"
+                                                   TextDecorations="{Binding ProjectileSpawningAreaWidth.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding ProjectileSpawningAreaWidth, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Spawning Area Width:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="4"
+                                                 Text="{Binding ProjectileSpawningAreaWidth.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding ProjectileSpawningAreaWidth, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                        <TextBlock Grid.Column="0"
+                                                   TextDecorations="{Binding ProjectileDispersion.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding ProjectileDispersion, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Dispersion:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="1"
+                                                 Text="{Binding ProjectileDispersion.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding ProjectileDispersion, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                        <TextBlock Grid.Column="3"
+                                                   TextDecorations="{Binding ProjectileSpawningAreaHeight.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding ProjectileSpawningAreaHeight, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Spawning Area Height:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="4"
+                                                 Text="{Binding ProjectileSpawningAreaHeight.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding ProjectileSpawningAreaHeight, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                        <TextBlock Grid.Column="3"
+                                                   TextDecorations="{Binding ProjectileSpawningAreaRandomness.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                   IsEnabled="{Binding ProjectileSpawningAreaRandomness, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Spawning Area Randomness:
+                                        </TextBlock>
+                                        <TextBox Grid.Column="4"
+                                                 Text="{Binding ProjectileSpawningAreaRandomness.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 IsEnabled="{Binding ProjectileSpawningAreaRandomness, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+                                    </plus:SimpleForm>
+                                </GroupBox>
+                                <GroupBox Header="Attack values" Margin="3"
+                                          DataContext="{Binding SelectedUnitEntry.Value}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <plus:SimpleForm Margin="5" Grid.Row="0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="50" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="50" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0"
+                                                       TextDecorations="{Binding MinRange.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                       IsEnabled="{Binding MinRange, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                                Minimum Range:
+                                            </TextBlock>
+                                            <TextBox Grid.Column="1"
+                                                     Text="{Binding MinRange.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                     IsEnabled="{Binding MinRange, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                            <TextBlock Grid.Column="3"
+                                                       TextDecorations="{Binding ReloadTime.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                       IsEnabled="{Binding ReloadTime, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                                Reload Time:
+                                            </TextBlock>
+                                            <TextBox Grid.Column="4"
+                                                     Text="{Binding ReloadTime.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                     IsEnabled="{Binding ReloadTime, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                            <TextBlock Grid.Column="0"
+                                                       TextDecorations="{Binding MaxRange.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                       IsEnabled="{Binding MaxRange, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                                Maximum Range:
+                                            </TextBlock>
+                                            <TextBox Grid.Column="1"
+                                                     Text="{Binding MaxRange.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                     IsEnabled="{Binding MaxRange, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                            <TextBlock Grid.Column="3"
+                                                       TextDecorations="{Binding DisplayedReloadTime.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                       IsEnabled="{Binding DisplayedReloadTime, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                                Displayed Reload Time:
+                                            </TextBlock>
+                                            <TextBox Grid.Column="4"
+                                                     Text="{Binding DisplayedReloadTime.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                     IsEnabled="{Binding DisplayedReloadTime, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                            <TextBlock Grid.Column="0"
+                                                       TextDecorations="{Binding DisplayedRange.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                       IsEnabled="{Binding DisplayedRange, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                                Displayed Range:
+                                            </TextBlock>
+                                            <TextBox Grid.Column="1"
+                                                     Text="{Binding DisplayedRange.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                     IsEnabled="{Binding DisplayedRange, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                            <TextBlock Grid.Column="3"
+                                                       TextDecorations="{Binding DisplayedAttack.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                       IsEnabled="{Binding DisplayedAttack, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                                Displayed Attack:
+                                            </TextBlock>
+                                            <TextBox Grid.Column="4"
+                                                     Text="{Binding DisplayedAttack.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                     IsEnabled="{Binding DisplayedAttack, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                            <TextBlock Grid.Column="0"
+                                                       TextDecorations="{Binding BlastRadius.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                       IsEnabled="{Binding BlastRadius, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                                Blast Radius:
+                                            </TextBlock>
+                                            <TextBox Grid.Column="1"
+                                                     Text="{Binding BlastRadius.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                     IsEnabled="{Binding BlastRadius, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+                                        </plus:SimpleForm>
+                                        <plus:SpacedGrid Margin="5" Grid.Row="1">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="300" />
+                                                <!-- TODO auto fill with "*" not working? -->
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0"
+                                                       TextDecorations="{Binding Attacks.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                                       IsEnabled="{Binding Attacks, Converter={StaticResource NullCheckToBoolConverterObj}}"
+                                                       VerticalAlignment="Center">
+                                                Attacks:
+                                            </TextBlock>
+                                            <DataGrid Grid.Column="1" ItemsSource="{Binding Attacks.Value}"
+                                                      AutoGenerateColumns="False"
+                                                      CanUserAddRows="True" Height="198">
+                                                <DataGrid.Columns>
+                                                    <DataGridComboBoxColumn x:Name="_attacksGridClassColumn"
+                                                                            Header="Class"
+                                                                            SelectedValueBinding="{Binding ArmorClass, Mode=TwoWay}"
+                                                                            Width="*" SelectedValuePath="Key"
+                                                                            DisplayMemberPath="Value" />
+                                                    <DataGridTextColumn Header="Value"
+                                                                        Binding="{Binding Amount, Mode=TwoWay}"
+                                                                        Width="50" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </plus:SpacedGrid>
+                                    </Grid>
+                                </GroupBox>
+                            </StackPanel>
+                        </Grid>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Researches">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="800" />
+                    </Grid.ColumnDefinitions>
+                    <ListBox Grid.Column="0"
+                             ItemsSource="{Binding BalancingFile.ResearchEntries}"
+                             SelectedItem="{Binding SelectedResearchEntry}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock x:Name="_researchEntriesIdCell" Text="{Binding Key}" Width="35" />
+                                    <TextBlock x:Name="_researchEntriesNameCell" Text="{Binding Value.DisplayName}" />
+                                </StackPanel>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Value.HasModifiedFields}" Value="True">
+                                        <Setter TargetName="_researchEntriesIdCell" Property="FontWeight" Value="Bold" />
+                                        <Setter TargetName="_researchEntriesNameCell" Property="FontWeight"
+                                                Value="Bold" />
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <GroupBox Grid.Column="1" Header="Values" Margin="3"
+                              DataContext="{Binding SelectedResearchEntry.Value}">
+                        <plus:SimpleForm Margin="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
 
                             <TextBlock Grid.Column="0"
-                                       TextDecorations="{Binding TrainTime.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding TrainTime, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Train Time:
+                                       TextDecorations="{Binding ResearchTime.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
+                                       IsEnabled="{Binding ResearchTime, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                Research Time:
                             </TextBlock>
                             <TextBox Grid.Column="1"
-                                     Text="{Binding TrainTime.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding TrainTime, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+                                     Text="{Binding ResearchTime.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                     IsEnabled="{Binding ResearchTime, Converter={StaticResource NullCheckToBoolConverterObj}}" />
 
                             <TextBlock Grid.Column="0"
                                        TextDecorations="{Binding Cost1.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
@@ -169,12 +583,13 @@
                                                    IsEnabled="{Binding Cost1, Converter={StaticResource NullCheckToBoolConverterObj}}">
                                 <CheckBox VerticalAlignment="Center"
                                           IsChecked="{Binding Cost1.Value.Paid, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-                                <ComboBox x:Name="_cost1TypeComboBox" Width="180"
+                                <ComboBox x:Name="_researchCost1TypeComboBox" Width="180"
                                           SelectedValue="{Binding Cost1.Value.ResourceType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                           SelectedValuePath="Key" DisplayMemberPath="Value" />
                                 <TextBox Width="50">
                                     <TextBox.Text>
-                                        <Binding Path="Cost1.Value.Amount" UpdateSourceTrigger="PropertyChanged"
+                                        <Binding Path="Cost1.Value.Amount"
+                                                 UpdateSourceTrigger="PropertyChanged"
                                                  Mode="TwoWay" />
                                     </TextBox.Text>
                                 </TextBox>
@@ -189,12 +604,13 @@
                                                    IsEnabled="{Binding Cost2, Converter={StaticResource NullCheckToBoolConverterObj}}">
                                 <CheckBox VerticalAlignment="Center"
                                           IsChecked="{Binding Cost2.Value.Paid, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-                                <ComboBox x:Name="_cost2TypeComboBox" Width="180"
+                                <ComboBox x:Name="_researchCost2TypeComboBox" Width="180"
                                           SelectedValue="{Binding Cost2.Value.ResourceType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                           SelectedValuePath="Key" DisplayMemberPath="Value" />
                                 <TextBox Width="50">
                                     <TextBox.Text>
-                                        <Binding Path="Cost2.Value.Amount" UpdateSourceTrigger="PropertyChanged"
+                                        <Binding Path="Cost2.Value.Amount"
+                                                 UpdateSourceTrigger="PropertyChanged"
                                                  Mode="TwoWay" />
                                     </TextBox.Text>
                                 </TextBox>
@@ -209,298 +625,21 @@
                                                    IsEnabled="{Binding Cost3, Converter={StaticResource NullCheckToBoolConverterObj}}">
                                 <CheckBox VerticalAlignment="Center"
                                           IsChecked="{Binding Cost3.Value.Paid, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-                                <ComboBox x:Name="_cost3TypeComboBox" Width="180"
+                                <ComboBox x:Name="_researchCost3TypeComboBox" Width="180"
                                           SelectedValue="{Binding Cost3.Value.ResourceType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                           SelectedValuePath="Key" DisplayMemberPath="Value" />
                                 <TextBox Width="50">
                                     <TextBox.Text>
-                                        <Binding Path="Cost3.Value.Amount" UpdateSourceTrigger="PropertyChanged"
+                                        <Binding Path="Cost3.Value.Amount"
+                                                 UpdateSourceTrigger="PropertyChanged"
                                                  Mode="TwoWay" />
                                     </TextBox.Text>
                                 </TextBox>
                             </plus:SpacedStackPanel>
                         </plus:SimpleForm>
                     </GroupBox>
-                    <GroupBox Header="Armor values" Margin="3" DataContext="{Binding SelectedUnitEntry.Value}">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <plus:SimpleForm Margin="5" Grid.Row="0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="50" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="50" />
-                                </Grid.ColumnDefinitions>
-
-                                <TextBlock Grid.Column="0"
-                                           TextDecorations="{Binding DisplayedMeleeArmor.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                           IsEnabled="{Binding DisplayedMeleeArmor, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                    Displayed Melee Armor:
-                                </TextBlock>
-                                <TextBox Grid.Column="1"
-                                         Text="{Binding DisplayedMeleeArmor.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                         IsEnabled="{Binding DisplayedMeleeArmor, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                                <TextBlock Grid.Column="2"
-                                           TextDecorations="{Binding DisplayedPierceArmor.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                           IsEnabled="{Binding DisplayedPierceArmor, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                    Displayed Pierce Armor:
-                                </TextBlock>
-                                <TextBox Grid.Column="3"
-                                         Text="{Binding DisplayedPierceArmor.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                         IsEnabled="{Binding DisplayedPierceArmor, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-                            </plus:SimpleForm>
-                            <plus:SpacedGrid Margin="5" Grid.Row="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="300" />
-                                    <!-- TODO auto fill with "*" not working? -->
-                                </Grid.ColumnDefinitions>
-
-                                <TextBlock Grid.Column="0"
-                                           TextDecorations="{Binding Armors.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                           IsEnabled="{Binding Armors, Converter={StaticResource NullCheckToBoolConverterObj}}"
-                                           VerticalAlignment="Center">
-                                    Armors:
-                                </TextBlock>
-                                <DataGrid Grid.Column="1" ItemsSource="{Binding Armors.Value}"
-                                          AutoGenerateColumns="False"
-                                          CanUserAddRows="True">
-                                    <DataGrid.Columns>
-                                        <DataGridComboBoxColumn x:Name="_armorsGridClassColumn" Header="Class"
-                                                                SelectedValueBinding="{Binding ArmorClass, Mode=TwoWay}"
-                                                                Width="*" SelectedValuePath="Key"
-                                                                DisplayMemberPath="Value" />
-                                        <DataGridTextColumn Header="Value" Binding="{Binding Amount, Mode=TwoWay}"
-                                                            Width="50" />
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                            </plus:SpacedGrid>
-                        </Grid>
-                    </GroupBox>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Vertical">
-                    <GroupBox Header="Projectile data" Margin="3" DataContext="{Binding SelectedUnitEntry.Value}">
-                        <plus:SimpleForm Margin="5">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="50" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="50" />
-                            </Grid.ColumnDefinitions>
-
-                            <TextBlock Grid.Column="0"
-                                       TextDecorations="{Binding ProjectileCount.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding ProjectileCount, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Count:
-                            </TextBlock>
-                            <TextBox Grid.Column="1"
-                                     Text="{Binding ProjectileCount.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding ProjectileCount, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                            <TextBlock Grid.Column="3"
-                                       TextDecorations="{Binding ProjectileGraphicDisplacementX.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding ProjectileGraphicDisplacementX, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Graphic Displacement X:
-                            </TextBlock>
-                            <TextBox Grid.Column="4"
-                                     Text="{Binding ProjectileGraphicDisplacementX.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding ProjectileGraphicDisplacementX, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                            <TextBlock Grid.Column="0"
-                                       TextDecorations="{Binding ProjectileCountOnFullGarrison.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding ProjectileCountOnFullGarrison, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Count On Full Garrison:
-                            </TextBlock>
-                            <TextBox Grid.Column="1"
-                                     Text="{Binding ProjectileCountOnFullGarrison.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding ProjectileCountOnFullGarrison, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                            <TextBlock Grid.Column="3"
-                                       TextDecorations="{Binding ProjectileGraphicDisplacementY.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding ProjectileGraphicDisplacementY, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Graphic Displacement Y:
-                            </TextBlock>
-                            <TextBox Grid.Column="4"
-                                     Text="{Binding ProjectileGraphicDisplacementY.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding ProjectileGraphicDisplacementY, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                            <TextBlock Grid.Column="0"
-                                       TextDecorations="{Binding ProjectileFrameDelay.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding ProjectileFrameDelay, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Frame Delay:
-                            </TextBlock>
-                            <TextBox Grid.Column="1"
-                                     Text="{Binding ProjectileFrameDelay.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding ProjectileFrameDelay, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                            <TextBlock Grid.Column="3"
-                                       TextDecorations="{Binding ProjectileGraphicDisplacementZ.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding ProjectileGraphicDisplacementZ, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Graphic Displacement Z:
-                            </TextBlock>
-                            <TextBox Grid.Column="4"
-                                     Text="{Binding ProjectileGraphicDisplacementZ.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding ProjectileGraphicDisplacementZ, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                            <TextBlock Grid.Column="0"
-                                       TextDecorations="{Binding ProjectileAccuracyPercent.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding ProjectileAccuracyPercent, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Accuracy Percent:
-                            </TextBlock>
-                            <TextBox Grid.Column="1"
-                                     Text="{Binding ProjectileAccuracyPercent.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding ProjectileAccuracyPercent, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                            <TextBlock Grid.Column="3"
-                                       TextDecorations="{Binding ProjectileSpawningAreaWidth.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding ProjectileSpawningAreaWidth, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Spawning Area Width:
-                            </TextBlock>
-                            <TextBox Grid.Column="4"
-                                     Text="{Binding ProjectileSpawningAreaWidth.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding ProjectileSpawningAreaWidth, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                            <TextBlock Grid.Column="0"
-                                       TextDecorations="{Binding ProjectileDispersion.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding ProjectileDispersion, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Dispersion:
-                            </TextBlock>
-                            <TextBox Grid.Column="1"
-                                     Text="{Binding ProjectileDispersion.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding ProjectileDispersion, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                            <TextBlock Grid.Column="3"
-                                       TextDecorations="{Binding ProjectileSpawningAreaHeight.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding ProjectileSpawningAreaHeight, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Spawning Area Height:
-                            </TextBlock>
-                            <TextBox Grid.Column="4"
-                                     Text="{Binding ProjectileSpawningAreaHeight.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding ProjectileSpawningAreaHeight, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                            <TextBlock Grid.Column="3"
-                                       TextDecorations="{Binding ProjectileSpawningAreaRandomness.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                       IsEnabled="{Binding ProjectileSpawningAreaRandomness, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                Spawning Area Randomness:
-                            </TextBlock>
-                            <TextBox Grid.Column="4"
-                                     Text="{Binding ProjectileSpawningAreaRandomness.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                     IsEnabled="{Binding ProjectileSpawningAreaRandomness, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-                        </plus:SimpleForm>
-                    </GroupBox>
-                    <GroupBox Header="Attack values" Margin="3" DataContext="{Binding SelectedUnitEntry.Value}">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <plus:SimpleForm Margin="5" Grid.Row="0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="50" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="50" />
-                                </Grid.ColumnDefinitions>
-
-                                <TextBlock Grid.Column="0"
-                                           TextDecorations="{Binding MinRange.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                           IsEnabled="{Binding MinRange, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                    Minimum Range:
-                                </TextBlock>
-                                <TextBox Grid.Column="1"
-                                         Text="{Binding MinRange.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                         IsEnabled="{Binding MinRange, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                                <TextBlock Grid.Column="3"
-                                           TextDecorations="{Binding ReloadTime.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                           IsEnabled="{Binding ReloadTime, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                    Reload Time:
-                                </TextBlock>
-                                <TextBox Grid.Column="4"
-                                         Text="{Binding ReloadTime.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                         IsEnabled="{Binding ReloadTime, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                                <TextBlock Grid.Column="0"
-                                           TextDecorations="{Binding MaxRange.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                           IsEnabled="{Binding MaxRange, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                    Maximum Range:
-                                </TextBlock>
-                                <TextBox Grid.Column="1"
-                                         Text="{Binding MaxRange.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                         IsEnabled="{Binding MaxRange, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                                <TextBlock Grid.Column="3"
-                                           TextDecorations="{Binding DisplayedReloadTime.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                           IsEnabled="{Binding DisplayedReloadTime, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                    Displayed Reload Time:
-                                </TextBlock>
-                                <TextBox Grid.Column="4"
-                                         Text="{Binding DisplayedReloadTime.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                         IsEnabled="{Binding DisplayedReloadTime, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                                <TextBlock Grid.Column="0"
-                                           TextDecorations="{Binding DisplayedRange.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                           IsEnabled="{Binding DisplayedRange, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                    Displayed Range:
-                                </TextBlock>
-                                <TextBox Grid.Column="1"
-                                         Text="{Binding DisplayedRange.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                         IsEnabled="{Binding DisplayedRange, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                                <TextBlock Grid.Column="3"
-                                           TextDecorations="{Binding DisplayedAttack.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                           IsEnabled="{Binding DisplayedAttack, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                    Displayed Attack:
-                                </TextBlock>
-                                <TextBox Grid.Column="4"
-                                         Text="{Binding DisplayedAttack.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                         IsEnabled="{Binding DisplayedAttack, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-
-                                <TextBlock Grid.Column="0"
-                                           TextDecorations="{Binding BlastRadius.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                           IsEnabled="{Binding BlastRadius, Converter={StaticResource NullCheckToBoolConverterObj}}">
-                                    Blast Radius:
-                                </TextBlock>
-                                <TextBox Grid.Column="1"
-                                         Text="{Binding BlastRadius.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                         IsEnabled="{Binding BlastRadius, Converter={StaticResource NullCheckToBoolConverterObj}}" />
-                            </plus:SimpleForm>
-                            <plus:SpacedGrid Margin="5" Grid.Row="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="300" />
-                                    <!-- TODO auto fill with "*" not working? -->
-                                </Grid.ColumnDefinitions>
-
-                                <TextBlock Grid.Column="0"
-                                           TextDecorations="{Binding Attacks.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
-                                           IsEnabled="{Binding Attacks, Converter={StaticResource NullCheckToBoolConverterObj}}"
-                                           VerticalAlignment="Center">
-                                    Attacks:
-                                </TextBlock>
-                                <DataGrid Grid.Column="1" ItemsSource="{Binding Attacks.Value}"
-                                          AutoGenerateColumns="False"
-                                          CanUserAddRows="True">
-                                    <DataGrid.Columns>
-                                        <DataGridComboBoxColumn x:Name="_attacksGridClassColumn" Header="Class"
-                                                                SelectedValueBinding="{Binding ArmorClass, Mode=TwoWay}"
-                                                                Width="*" SelectedValuePath="Key"
-                                                                DisplayMemberPath="Value" />
-                                        <DataGridTextColumn Header="Value" Binding="{Binding Amount, Mode=TwoWay}"
-                                                            Width="50" />
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                            </plus:SpacedGrid>
-                        </Grid>
-                    </GroupBox>
-                </StackPanel>
-            </Grid>
-        </ScrollViewer>
+                </Grid>
+            </TabItem>
+        </TabControl>
     </plus:SpacedGrid>
 </Window>

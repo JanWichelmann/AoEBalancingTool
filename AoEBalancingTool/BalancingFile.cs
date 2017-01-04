@@ -28,6 +28,11 @@ namespace AoEBalancingTool
 		/// </summary>
 		private Dictionary<short, UnitEntry> _unitEntries;
 
+		/// <summary>
+		/// All modifiable researches, indexed by their IDs.
+		/// </summary>
+		private Dictionary<short, ResearchEntry> _researchEntries;
+
 		#endregion
 
 		#region Properties
@@ -42,6 +47,19 @@ namespace AoEBalancingTool
 			{
 				_unitEntries = value;
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UnitEntries)));
+			}
+		}
+
+		/// <summary>
+		/// Returns the list of all modifiable researches, indexed by their IDs.
+		/// </summary>
+		public Dictionary<short, ResearchEntry> ResearchEntries
+		{
+			get { return _researchEntries; }
+			private set
+			{
+				_researchEntries = value;
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ResearchEntries)));
 			}
 		}
 
@@ -68,6 +86,10 @@ namespace AoEBalancingTool
 				{
 					// Unit already contained in unit entry list?
 					if(unitEntries.ContainsKey((short)unitData.Key))
+						continue;
+
+					// Show only projectiles, living units and buildings
+					if(unitData.Value.Type <= Civ.Unit.UnitType.Projectile)
 						continue;
 
 					// Create entry
@@ -174,8 +196,51 @@ namespace AoEBalancingTool
 				}
 			}
 
-			// Save unit entry list
-			UnitEntries = unitEntries;
+			// Sort and save unit entry list
+			UnitEntries = unitEntries.OrderBy(ue => ue.Value.DisplayName).ToDictionary(ue => ue.Key, ue => ue.Value);
+
+			// Initialize research list with base values
+			Dictionary<short, ResearchEntry> researchEntries = new Dictionary<short, ResearchEntry>();
+			for(int rId = 0; rId < genieFile.Researches.Count; ++rId)
+			{
+				// Get research data
+				Research researchData = genieFile.Researches[rId];
+
+				// Create entry
+				ResearchEntry re = new ResearchEntry();
+				re.DisplayName = langFileWrapper.GetString(researchData.LanguageDLLName1);
+				if(string.IsNullOrEmpty(re.DisplayName))
+					re.DisplayName = researchData.Name.TrimEnd('\0');
+				if(string.IsNullOrWhiteSpace(re.DisplayName))
+					continue; // Skip empty researches
+
+				// Get members
+				re.ResearchTime = new DiffElement<short>(re, researchData.ResearchTime);
+				re.Cost1 = new ResourceCostEntryDiffElement(re, new ResourceCostEntry
+				(
+					researchData.ResourceCosts[0].Type,
+					researchData.ResourceCosts[0].Amount,
+					researchData.ResourceCosts[0].Paid
+				));
+				re.Cost2 = new ResourceCostEntryDiffElement(re, new ResourceCostEntry
+				(
+					researchData.ResourceCosts[1].Type,
+					researchData.ResourceCosts[1].Amount,
+					researchData.ResourceCosts[1].Paid
+				));
+				re.Cost3 = new ResourceCostEntryDiffElement(re, new ResourceCostEntry
+				(
+					researchData.ResourceCosts[2].Type,
+					researchData.ResourceCosts[2].Amount,
+					researchData.ResourceCosts[2].Paid
+				));
+
+				// Save research entry
+				researchEntries[(short)rId] = re;
+			}
+
+			// Sort and save research entry list
+			ResearchEntries = researchEntries.OrderBy(re => re.Value.DisplayName).ToDictionary(re => re.Key, re => re.Value);
 		}
 
 		/// <summary>
@@ -203,6 +268,16 @@ namespace AoEBalancingTool
 				short unitId = buffer.ReadShort();
 				if(UnitEntries.ContainsKey(unitId))
 					UnitEntries[unitId].Read(buffer);
+			}
+
+			// Read research entries
+			int researchEntryCount = buffer.ReadInteger();
+			for(int i = 0; i < researchEntryCount; ++i)
+			{
+				// Read entry and merge with existing entry
+				short researchId = buffer.ReadShort();
+				if(ResearchEntries.ContainsKey(researchId))
+					ResearchEntries[researchId].Read(buffer);
 			}
 		}
 
@@ -235,9 +310,31 @@ namespace AoEBalancingTool
 				++unitEntryCount;
 			}
 
+			// Run through research list and save research entries
+			int researchEntryCount = 0;
+			int researchEntryCountOffset = buffer.Position;
+			buffer.WriteInteger(researchEntryCount); // Placeholder
+			foreach(KeyValuePair<short, ResearchEntry> re in ResearchEntries)
+			{
+				// Are there any changes? => Omit researches with no modifications
+				if(re.Value.ModifiedFieldsCount == 0)
+					continue;
+
+				// Save ID
+				buffer.WriteShort(re.Key);
+
+				// Save entry data
+				re.Value.Save(buffer);
+				++researchEntryCount;
+			}
+
 			// Write unit entry count
 			buffer.Position = 4;
 			buffer.WriteInteger(unitEntryCount);
+
+			// Write research entry count
+			buffer.Position = researchEntryCountOffset;
+			buffer.WriteInteger(researchEntryCount);
 
 			// Save buffer
 			buffer.Save(path);
@@ -345,6 +442,38 @@ namespace AoEBalancingTool
 							Type = ue.Value.Cost3.Value.ResourceType
 						};
 				}
+			}
+
+			// Apply each research entry
+			foreach(KeyValuePair<short, ResearchEntry> re in ResearchEntries)
+			{
+				// Get corresponding research
+				var researchData = genieFile.Researches[re.Key];
+
+				// Apply all modified members
+				if(re.Value.ResearchTime?.Modified ?? false)
+					researchData.ResearchTime = re.Value.ResearchTime;
+				if(re.Value.Cost1?.Modified ?? false)
+					researchData.ResourceCosts[0] = new GenieLibrary.IGenieDataElement.ResourceTuple<short, short, byte>
+					{
+						Amount = re.Value.Cost1.Value.Amount,
+						Paid = re.Value.Cost1.Value.Paid,
+						Type = re.Value.Cost1.Value.ResourceType
+					};
+				if(re.Value.Cost2?.Modified ?? false)
+					researchData.ResourceCosts[1] = new GenieLibrary.IGenieDataElement.ResourceTuple<short, short, byte>
+					{
+						Amount = re.Value.Cost2.Value.Amount,
+						Paid = re.Value.Cost2.Value.Paid,
+						Type = re.Value.Cost2.Value.ResourceType
+					};
+				if(re.Value.Cost3?.Modified ?? false)
+					researchData.ResourceCosts[2] = new GenieLibrary.IGenieDataElement.ResourceTuple<short, short, byte>
+					{
+						Amount = re.Value.Cost3.Value.Amount,
+						Paid = re.Value.Cost3.Value.Paid,
+						Type = re.Value.Cost3.Value.ResourceType
+					};
 			}
 		}
 
