@@ -121,6 +121,9 @@
   <data name="ArmorClasses" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ArmorClasses.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
+  <data name="pal50500" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\50500.pal;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="ResourceTypes" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ResourceTypes.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>

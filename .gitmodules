@@ -7,3 +7,12 @@
 [submodule "WpfPlus"]
 	path = WpfPlus
 	url = git@github.com:MarcusWichelmann/WpfPlus.git
+[submodule "DRSLibrary"]
+	path = DRSLibrary
+	url = git@github.com:Janworks/DRSLibrary.git
+[submodule "SLPLibrary"]
+	path = SLPLibrary
+	url = git@github.com:Janworks/SLPLibrary.git
+[submodule "BitmapLibrary"]
+	path = BitmapLibrary
+	url = git@github.com:Janworks/BitmapLibrary.git

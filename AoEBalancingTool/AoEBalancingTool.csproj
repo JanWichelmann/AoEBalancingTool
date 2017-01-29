@@ -37,6 +37,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
@@ -55,10 +56,14 @@
     <Compile Include="Converters.cs" />
     <Compile Include="DiffElementContainers.cs" />
     <Compile Include="DiffElements.cs" />
+    <Compile Include="ExtensionMethods.cs" />
     <Compile Include="FileSelectionWindow.xaml.cs">
       <DependentUpon>FileSelectionWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="GenericCollectionView.cs" />
+    <Compile Include="ProjectileWindow.xaml.cs">
+      <DependentUpon>ProjectileWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -83,6 +88,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="ProjectileWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -105,6 +114,14 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BitmapLibrary\BitmapLibrary\BitmapLibrary.csproj">
+      <Project>{328B4638-6A65-4A99-AAE4-768D98091A40}</Project>
+      <Name>BitmapLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DRSLibrary\DRSLibrary\DRSLibrary.csproj">
+      <Project>{4c0ec97d-e156-4aef-9bbb-2dcdacc34512}</Project>
+      <Name>DRSLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GenieLibrary\GenieLibrary\GenieLibrary.csproj">
       <Project>{999f8815-8f80-403a-95a6-48ade9b5b52a}</Project>
       <Name>GenieLibrary</Name>
@@ -113,12 +130,17 @@
       <Project>{e916caa5-59a9-4f62-a8fb-0ceec2d840b8}</Project>
       <Name>IORAMHelper</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SLPLibrary\SLPLibrary\SLPLibrary.csproj">
+      <Project>{A964B92B-BAB2-42B0-AB1F-9AF65597707F}</Project>
+      <Name>SLPLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WpfPlus\WpfPlus\WpfPlus.csproj">
       <Project>{ccfe878e-86d2-4c8b-8b76-e84600273549}</Project>
       <Name>WpfPlus</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\50500.pal" />
     <None Include="Resources\ResourceTypes.txt" />
   </ItemGroup>
   <ItemGroup>

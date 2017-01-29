@@ -70,5 +70,29 @@ namespace AoEBalancingTool.Properties {
                 this["LanguageX1P1DllFilePath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Drs1Path {
+            get {
+                return ((string)(this["Drs1Path"]));
+            }
+            set {
+                this["Drs1Path"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Drs2Path {
+            get {
+                return ((string)(this["Drs2Path"]));
+            }
+            set {
+                this["Drs2Path"] = value;
+            }
+        }
     }
 }

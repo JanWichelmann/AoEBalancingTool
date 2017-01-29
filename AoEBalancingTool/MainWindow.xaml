@@ -6,13 +6,15 @@
         xmlns:local="clr-namespace:AoEBalancingTool"
         xmlns:props="clr-namespace:AoEBalancingTool.Properties"
         xmlns:plus="clr-namespace:WpfPlus.Controls;assembly=WpfPlus"
-        Style="{StaticResource WindowStyle}"
+        Style="{DynamicResource FlatWindowStyle}"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:MainWindow}"
+        Closing="MainWindow_Closing"
         Title="{Binding CurrentWindowTitle}" Height="730" Width="1050" MinHeight="100" MinWidth="100"><!-- TODO -->
     <Window.Resources>
         <local:BoolToTextDecorationConverter x:Key="BoolToTextDecorationConverterObj" />
         <local:NullCheckToBoolConverter x:Key="NullCheckToBoolConverterObj" />
+        <local:BoolInvertConverter x:Key="BoolInvertConverterObj" />
     </Window.Resources>
     <plus:SpacedGrid Margin="5">
         <Grid.RowDefinitions>
@@ -291,6 +293,7 @@
                                             <DataGrid Grid.Column="1" ItemsSource="{Binding Armors.Value}"
                                                       AutoGenerateColumns="False"
                                                       CanUserAddRows="True" Height="150">
+                                                <!--  AlternationCount="2" -->
                                                 <DataGrid.Columns>
                                                     <DataGridComboBoxColumn x:Name="_armorsGridClassColumn"
                                                                             Header="Class"
@@ -334,7 +337,8 @@
                                         </TextBlock>
                                         <TextBox Grid.Column="4"
                                                  Text="{Binding ProjectileGraphicDisplacementX.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                                 IsEnabled="{Binding ProjectileGraphicDisplacementX, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+                                                 IsEnabled="{Binding ProjectileGraphicDisplacementX, Converter={StaticResource NullCheckToBoolConverterObj}}"
+                                                 PreviewKeyDown="FloatingPointTextBox_OnPreviewKeyDown" />
 
                                         <TextBlock Grid.Column="0"
                                                    TextDecorations="{Binding ProjectileCountOnFullGarrison.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
@@ -352,7 +356,8 @@
                                         </TextBlock>
                                         <TextBox Grid.Column="4"
                                                  Text="{Binding ProjectileGraphicDisplacementY.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                                 IsEnabled="{Binding ProjectileGraphicDisplacementY, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+                                                 IsEnabled="{Binding ProjectileGraphicDisplacementY, Converter={StaticResource NullCheckToBoolConverterObj}}"
+                                                 PreviewKeyDown="FloatingPointTextBox_OnPreviewKeyDown" />
 
                                         <TextBlock Grid.Column="0"
                                                    TextDecorations="{Binding ProjectileFrameDelay.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
@@ -370,7 +375,8 @@
                                         </TextBlock>
                                         <TextBox Grid.Column="4"
                                                  Text="{Binding ProjectileGraphicDisplacementZ.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                                 IsEnabled="{Binding ProjectileGraphicDisplacementZ, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+                                                 IsEnabled="{Binding ProjectileGraphicDisplacementZ, Converter={StaticResource NullCheckToBoolConverterObj}}"
+                                                 PreviewKeyDown="FloatingPointTextBox_OnPreviewKeyDown" />
 
                                         <TextBlock Grid.Column="0"
                                                    TextDecorations="{Binding ProjectileAccuracyPercent.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
@@ -388,7 +394,8 @@
                                         </TextBlock>
                                         <TextBox Grid.Column="4"
                                                  Text="{Binding ProjectileSpawningAreaWidth.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                                 IsEnabled="{Binding ProjectileSpawningAreaWidth, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+                                                 IsEnabled="{Binding ProjectileSpawningAreaWidth, Converter={StaticResource NullCheckToBoolConverterObj}}"
+                                                 PreviewKeyDown="FloatingPointTextBox_OnPreviewKeyDown" />
 
                                         <TextBlock Grid.Column="0"
                                                    TextDecorations="{Binding ProjectileDispersion.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"
@@ -406,7 +413,13 @@
                                         </TextBlock>
                                         <TextBox Grid.Column="4"
                                                  Text="{Binding ProjectileSpawningAreaHeight.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                                 IsEnabled="{Binding ProjectileSpawningAreaHeight, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+                                                 IsEnabled="{Binding ProjectileSpawningAreaHeight, Converter={StaticResource NullCheckToBoolConverterObj}}" 
+                                                 PreviewKeyDown="FloatingPointTextBox_OnPreviewKeyDown" />
+
+                                        <Button Name="_showProjectileWindowButton" Grid.Column="0" Grid.ColumnSpan="2"
+                                                IsEnabled="{Binding Path=ProjectileWindowIsVisible, RelativeSource={RelativeSource AncestorType=local:MainWindow}, Converter={StaticResource BoolInvertConverterObj}}" Click="_showProjectileWindowButton_Click">
+                                            Show render window
+                                        </Button>
 
                                         <TextBlock Grid.Column="3"
                                                    TextDecorations="{Binding ProjectileSpawningAreaRandomness.Modified, Converter={StaticResource BoolToTextDecorationConverterObj}}"

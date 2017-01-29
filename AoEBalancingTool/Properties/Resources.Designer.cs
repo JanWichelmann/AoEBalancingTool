@@ -61,11 +61,46 @@ namespace AoEBalancingTool.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die 0=0 - Unused
+        ///1=1 - Infantry
+        ///2=2 - Turtle Ships
+        ///3=3 - Base Pierce
+        ///4=4 - Base Melee
+        ///5=5 - War Elephants
+        ///6=6 - Unused
+        ///7=7 - Unused
+        ///8=8 - Cavalry
+        ///9=9 - Unused
+        ///10=10 - Unused
+        ///11=11 - All Buildings (except Port)
+        ///12=12 - Unused
+        ///13=13 - Stone Defense
+        ///14=14 - Unused
+        ///15=15 - Archers
+        ///16=16 - Ships &amp; Camels &amp; Saboteurs
+        ///17=17 - Rams
+        ///18=18 - Trees
+        ///19=19 - Unique Units (except Turtle Ship)
+        ///20=20 - Siege Weapons
+        ///21=21 - Standard Buildings
+        ///22=22 - Walls &amp; Gates
+        ///23=23 - Unused
+        ///24=24 - Boars
+        ///25=25 - M [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string ArmorClasses {
             get {
                 return ResourceManager.GetString("ArmorClasses", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
+        /// </summary>
+        internal static byte[] pal50500 {
+            get {
+                object obj = ResourceManager.GetObject("pal50500", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         

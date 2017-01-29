@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -67,7 +68,12 @@ namespace AoEBalancingTool
 		/// <summary>
 		/// The window last used for the base file selection. As windows cannot be reopened, a new one has to be created every time a file is loaded.
 		/// </summary>
-		private FileSelectionWindow _fileSelectionWindow = null;
+		private FileSelectionWindow _currentFileSelectionWindow = null;
+
+		/// <summary>
+		/// The currently displayed projectile rendering window.
+		/// </summary>
+		private ProjectileWindow _projectileWindow = null;
 
 		#endregion
 
@@ -130,15 +136,15 @@ namespace AoEBalancingTool
 		private void _loadDatButton_Click(object sender, RoutedEventArgs e)
 		{
 			// Show window (create new first, as closed windows cannot be reopened)
-			_fileSelectionWindow = new FileSelectionWindow();
-			if(!(_fileSelectionWindow.ShowDialog() ?? false))
+			_currentFileSelectionWindow = new FileSelectionWindow();
+			if(!(_currentFileSelectionWindow.ShowDialog() ?? false))
 				return;
 
 			// Check whether genie file exists
-			if(!File.Exists(_fileSelectionWindow.BaseGenieFilePath))
+			if(!File.Exists(_currentFileSelectionWindow.BaseGenieFilePath))
 			{
 				// Error
-				MessageBox.Show($"The given genie file path is invalid: '{_fileSelectionWindow.BaseGenieFilePath}'");
+				MessageBox.Show($"The given genie file path is invalid: '{_currentFileSelectionWindow.BaseGenieFilePath}'");
 				return;
 			}
 
@@ -147,16 +153,16 @@ namespace AoEBalancingTool
 			try
 			{
 				// Find language files
-				if(File.Exists(_fileSelectionWindow.LanguageX1P1DllFilePath))
-					_languageFiles.Add(_fileSelectionWindow.LanguageX1P1DllFilePath);
-				if(File.Exists(_fileSelectionWindow.LanguageX1DllFilePath))
-					_languageFiles.Add(_fileSelectionWindow.LanguageX1DllFilePath);
-				if(File.Exists(_fileSelectionWindow.LanguageDllFilePath))
-					_languageFiles.Add(_fileSelectionWindow.LanguageDllFilePath);
+				if(File.Exists(_currentFileSelectionWindow.LanguageX1P1DllFilePath))
+					_languageFiles.Add(_currentFileSelectionWindow.LanguageX1P1DllFilePath);
+				if(File.Exists(_currentFileSelectionWindow.LanguageX1DllFilePath))
+					_languageFiles.Add(_currentFileSelectionWindow.LanguageX1DllFilePath);
+				if(File.Exists(_currentFileSelectionWindow.LanguageDllFilePath))
+					_languageFiles.Add(_currentFileSelectionWindow.LanguageDllFilePath);
 
 				// Load genie file
 				_genieFile =
-					new GenieLibrary.GenieFile(GenieLibrary.GenieFile.DecompressData(new IORAMHelper.RAMBuffer(_fileSelectionWindow.BaseGenieFilePath)));
+					new GenieLibrary.GenieFile(GenieLibrary.GenieFile.DecompressData(new IORAMHelper.RAMBuffer(_currentFileSelectionWindow.BaseGenieFilePath)));
 			}
 			catch(IOException ex)
 			{
@@ -172,6 +178,10 @@ namespace AoEBalancingTool
 			// Set filterable lists
 			UnitEntryList = new GenericCollectionView<KeyValuePair<short, UnitEntry>>(CollectionViewSource.GetDefaultView(_balancingFile.UnitEntries));
 			OnPropertyChanged(nameof(UnitEntryList));
+
+			// Update child windows
+			if(_projectileWindow != null)
+				_projectileWindow.GenieFile = _genieFile;
 
 			// Reset window title
 			CurrentWindowTitle = WindowTitlePrefix;
@@ -196,7 +206,7 @@ namespace AoEBalancingTool
 			{
 				// Reload internal genie file, apply changes and save
 				GenieLibrary.GenieFile exportFile =
-					new GenieLibrary.GenieFile(GenieLibrary.GenieFile.DecompressData(new IORAMHelper.RAMBuffer(_fileSelectionWindow.BaseGenieFilePath)));
+					new GenieLibrary.GenieFile(GenieLibrary.GenieFile.DecompressData(new IORAMHelper.RAMBuffer(_currentFileSelectionWindow.BaseGenieFilePath)));
 				BalancingFile.WriteChangesToGenieFile(exportFile);
 				IORAMHelper.RAMBuffer exportFileBuffer = new IORAMHelper.RAMBuffer();
 				exportFile.WriteData(exportFileBuffer);
@@ -295,6 +305,36 @@ namespace AoEBalancingTool
 			UnitEntryList.Refresh();
 		}
 
+		private void _showProjectileWindowButton_Click(object sender, RoutedEventArgs e)
+		{
+			// Show window
+			_projectileWindow = new ProjectileWindow
+			{
+				CurrentUnitEntry = SelectedUnitEntry,
+				GenieFile = _genieFile
+			};
+			_projectileWindow.Show();
+			OnPropertyChanged(nameof(ProjectileWindowIsVisible));
+		}
+
+		private void MainWindow_Closing(object sender, CancelEventArgs e)
+		{
+			// Close all open windows
+			if(_projectileWindow?.IsVisible ?? false)
+				_projectileWindow.Close();
+		}
+
+		private void FloatingPointTextBox_OnPreviewKeyDown(object sender, KeyEventArgs e)
+		{
+			TextBox senderTB = (TextBox)sender;
+			float val;
+			if(float.TryParse(senderTB.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out val))
+				if(e.Key == Key.Down)
+					senderTB.Text = (val - 0.1f).ToString(CultureInfo.InvariantCulture);
+				else if(e.Key == Key.Up)
+					senderTB.Text = (val + 0.1f).ToString(CultureInfo.InvariantCulture);
+		}
+
 		#endregion
 
 		#region Events
@@ -302,8 +342,7 @@ namespace AoEBalancingTool
 		/// <summary>
 		/// Implementation of PropertyChanged interface.
 		/// </summary>
-		public
-			event PropertyChangedEventHandler PropertyChanged;
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		#endregion
 
@@ -311,19 +350,16 @@ namespace AoEBalancingTool
 
 		#region Hidden fields
 
-		private
-			string _currentWindowTitle = WindowTitlePrefix;
+		private string _currentWindowTitle = WindowTitlePrefix;
 
-		private
-			bool _enableEditorPanel = false;
+		private bool _enableEditorPanel = false;
 
 		#endregion
 
 		/// <summary>
 		/// The current window title.
 		/// </summary>
-		public
-			string CurrentWindowTitle
+		public string CurrentWindowTitle
 		{
 			get { return _currentWindowTitle; }
 			set
@@ -336,8 +372,7 @@ namespace AoEBalancingTool
 		/// <summary>
 		/// Controls the availability of the editing panel.
 		/// </summary>
-		public
-			bool EnableEditorPanel
+		public bool EnableEditorPanel
 		{
 			get { return _enableEditorPanel; }
 			set
@@ -350,8 +385,7 @@ namespace AoEBalancingTool
 		/// <summary>
 		/// The current balancing file.
 		/// </summary>
-		public
-			BalancingFile BalancingFile
+		public BalancingFile BalancingFile
 		{
 			get { return _balancingFile; }
 			set
@@ -365,22 +399,25 @@ namespace AoEBalancingTool
 		/// <summary>
 		/// The currently selected unit entry.
 		/// </summary>
-		public
-			KeyValuePair<short, UnitEntry> SelectedUnitEntry
+		public KeyValuePair<short, UnitEntry> SelectedUnitEntry
 		{
 			get { return _selectedUnitEntry; }
 			set
 			{
+				// Update internal field and notify controls
 				_selectedUnitEntry = value;
 				OnPropertyChanged(nameof(SelectedUnitEntry));
+
+				// Update windows using the unit data
+				if(_projectileWindow != null)
+					_projectileWindow.CurrentUnitEntry = value;
 			}
 		}
 
 		/// <summary>
 		/// The currently selected research entry.
 		/// </summary>
-		public
-			KeyValuePair<short, ResearchEntry> SelectedResearchEntry
+		public KeyValuePair<short, ResearchEntry> SelectedResearchEntry
 		{
 			get { return _selectedResearchEntry; }
 			set
@@ -393,20 +430,22 @@ namespace AoEBalancingTool
 		/// <summary>
 		/// The filterable list of units.
 		/// </summary>
-		public
-			GenericCollectionView<KeyValuePair<short, UnitEntry>> UnitEntryList { get; private set; }
+		public GenericCollectionView<KeyValuePair<short, UnitEntry>> UnitEntryList { get; private set; }
 
 		/// <summary>
 		/// The resource type list for the cost fields.
 		/// </summary>
-		public
-			List<KeyValuePair<short, string>> ResourceTypes { get; }
+		public List<KeyValuePair<short, string>> ResourceTypes { get; }
 
 		/// <summary>
 		/// The armor class list for the attacks and armors fields.
 		/// </summary>
-		public
-			ObservableCollection<KeyValuePair<ushort, string>> ArmorClasses { get; }
+		public ObservableCollection<KeyValuePair<ushort, string>> ArmorClasses { get; }
+
+		/// <summary>
+		/// Determines whether the projectile window is visible.
+		/// </summary>
+		public bool ProjectileWindowIsVisible => _projectileWindow?.IsVisible ?? false;
 
 		#endregion
 	}

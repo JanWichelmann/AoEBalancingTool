@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:AoEBalancingTool"
         xmlns:props="clr-namespace:AoEBalancingTool.Properties"
         xmlns:plus="clr-namespace:WpfPlus.Controls;assembly=WpfPlus"
-        Style="{StaticResource WindowStyle}"
+        Style="{DynamicResource FlatWindowStyle}"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:FileSelectionWindow}"
         Title="Select files..." Height="225" Width="450">

@@ -40,4 +40,22 @@ namespace AoEBalancingTool
 			return Binding.DoNothing;
 		}
 	}
+
+	/// <summary>
+	/// Inverts a boolean value.
+	/// </summary>
+	public class BoolInvertConverter : IValueConverter
+	{
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			// Return inverted value
+			return value != null && !(bool)value;
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			// Do nothing
+			return Binding.DoNothing;
+		}
+	}
 }

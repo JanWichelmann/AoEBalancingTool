@@ -1,0 +1,41 @@
+﻿<Window x:Class="AoEBalancingTool.ProjectileWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AoEBalancingTool"
+        xmlns:props="clr-namespace:AoEBalancingTool.Properties"
+        xmlns:plus="clr-namespace:WpfPlus.Controls;assembly=WpfPlus"
+        Style="{DynamicResource FlatWindowStyle}"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance local:ProjectileWindow}"
+        Title="Projectile Positions" Height="300" Width="535">
+    <Window.Resources>
+        <local:BoolInvertConverter x:Key="BoolInvertConverterObj" />
+    </Window.Resources>
+    <plus:SpacedGrid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <plus:SimpleForm Grid.Row="0" IsEnabled="{Binding DrsFilesLoaded, Converter={StaticResource BoolInvertConverterObj}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="80" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0">1st priority DRS file:</TextBlock>
+            <TextBox Grid.Column="1" Text="{Binding Drs1Path}" />
+            <Button x:Name="_browseDrs1Button" Grid.Column="2" Click="_browseDrs1Button_OnClick">Browse...</Button>
+
+            <TextBlock Grid.Column="0">2nd priority DRS file:</TextBlock>
+            <TextBox Grid.Column="1" Text="{Binding Drs2Path}" />
+            <Button x:Name="_browseDrs2Button" Grid.Column="2" Click="_browseDrs2Button_OnClick">Browse...</Button>
+
+            <Button x:Name="_loadDrsButton" Grid.Column="1" Click="_loadDrsButton_OnClick">Load DRS files</Button>
+        </plus:SimpleForm>
+        <Canvas Grid.Row="1" Name="_renderPanel" Background="#F0F0F0" MouseMove="_renderPanel_OnMouseMove" MouseLeftButtonUp="_shape_OnMouseLeftButtonUp" Cursor="Cross" />
+        <!-- Background="#F3E9D4" -->
+    </plus:SpacedGrid>
+</Window>
