@@ -263,7 +263,7 @@ namespace AoEBalancingTool
 					loadSlpFromDrs((ushort)_genieFile.Graphics[currDelta.GraphicID].SLP);
 
 			// Create shape objects depending on angle count (ignore mirrored sides)
-			// Each shape gets an event handler for mouse events, such that it can be dragged around by the used
+			// Each shape gets an event handler for mouse events, such that it can be dragged around by the user
 			int effectiveAngleCount = (_currentUnitGraphic.MirroringMode > 0 ? _currentUnitGraphic.AngleCount / 2 + 1 : _currentUnitGraphic.AngleCount);
 			for(int a = 0; a < effectiveAngleCount; ++a)
 			{
@@ -331,43 +331,120 @@ namespace AoEBalancingTool
 			// Generate and assign frames
 			for(short a = 0; a < _drawnImages.Count; ++a)
 			{
-				// Get frame
+				// Get frame ID
 				int frameId = frameDelay + a * _currentUnitGraphic.FrameCount;
+
+				// Calculate combined frame dimensions while setting the anchor point to (0, 0)
+				OffsetData frameDimensions = new OffsetData(0, 0, 0, 0);
+
+				// Store considered SLPs for later drawing
+				// Tuple: frameId, anchorX, anchorY, slpObject
+				// slpObject == null --> redraw main SLP
+				var drawnSlpFrames = new List<Tuple<int, int, int, SLPFile>>();
+
+				// Check primary SLP
+				SLPFile primarySlp = null;
+				SLPFile.FrameInformationHeader primarySlpFrameHeader = null;
 				if(_currentUnitGraphic.SLP >= 0 && _slps.ContainsKey((ushort)_currentUnitGraphic.SLP))
 				{
-					// Load and store bitmap
-					if(!_precomputedUnitFrames.ContainsKey(frameId))
-					{
-						// TODO Deltas
-						_precomputedUnitFrames[frameId] =
-							_slps[(ushort)_currentUnitGraphic.SLP].getFrameAsBitmap
-							(
-								(uint)frameId,
-								Pal50500,
-								SLPFile.Masks.Graphic,
-								System.Drawing.Color.FromArgb(0, 0, 0, 0),
-								System.Drawing.Color.FromArgb(100, 100, 100, 100)
-							).ToImageSource();
-					}
+					// Get SLP
+					primarySlp = _slps[(ushort)_currentUnitGraphic.SLP];
 
-					// Get frame anchors
-					int frameAnchorX = _slps[(ushort)_currentUnitGraphic.SLP]._frameInformationHeaders[frameId].AnchorX;
-					int frameAnchorY = _slps[(ushort)_currentUnitGraphic.SLP]._frameInformationHeaders[frameId].AnchorY;
+					// Update dimensions
+					primarySlpFrameHeader = primarySlp._frameInformationHeaders[frameId];
+					frameDimensions.Left = primarySlpFrameHeader.AnchorX;
+					frameDimensions.Top = primarySlpFrameHeader.AnchorY;
+					frameDimensions.Right = (int)primarySlpFrameHeader.Width - primarySlpFrameHeader.AnchorX;
+					frameDimensions.Bottom = (int)primarySlpFrameHeader.Height - primarySlpFrameHeader.AnchorY;
 
-					// Assign to drawn image objects
-					_drawnImages[a].Source = _precomputedUnitFrames[frameId];
-					_drawnImages[a].Width = _precomputedUnitFrames[frameId].Width;
-					_drawnImages[a].Height = _precomputedUnitFrames[frameId].Height;
-					_anchors[a] = new Point(frameAnchorX, frameAnchorY); // Frame anchor point
-
-					// Calculate bounds including the anchor point
-					_maxFrameOffsets.Left = Math.Max(_maxFrameOffsets.Left, frameAnchorX);
-					_maxFrameOffsets.Right = Math.Max(_maxFrameOffsets.Right, (int)_precomputedUnitFrames[frameId].Width - frameAnchorX);
-					_maxFrameOffsets.Top = Math.Max(_maxFrameOffsets.Top, frameAnchorY);
-					_maxFrameOffsets.Bottom = Math.Max(_maxFrameOffsets.Bottom, (int)_precomputedUnitFrames[frameId].Width - frameAnchorY);
+					// Add SLP to render list
+					// Only if no deltas are present, else the primary graphic should be drawn explicitly
+					if(_renderedDeltas.Count == 0)
+						drawnSlpFrames.Add(new Tuple<int, int, int, SLPFile>(frameId, primarySlpFrameHeader.AnchorX, primarySlpFrameHeader.AnchorY, primarySlp));
 				}
-				else
-					_drawnImages[a].Source = null;
+
+				// Check deltas
+				foreach(var currDelta in _renderedDeltas)
+				{
+					// Redrawer?
+					if(currDelta.GraphicID == -1 && primarySlp != null)
+						drawnSlpFrames.Add(new Tuple<int, int, int, SLPFile>(frameId, primarySlpFrameHeader.AnchorX, primarySlpFrameHeader.AnchorY, primarySlp));
+					else if(currDelta.GraphicID != -1)
+					{
+						// Get graphic and SLP
+						var currDeltaGraphic = _genieFile.Graphics[currDelta.GraphicID];
+						SLPFile currDeltaSlp = _slps[(ushort)currDeltaGraphic.SLP];
+
+						// Update dimensions
+						int currDeltaFrameId = GetCorrespondingFrameId(frameId, _currentUnitGraphic, currDeltaGraphic);
+						SLPFile.FrameInformationHeader frameHeader = currDeltaSlp._frameInformationHeaders[currDeltaFrameId];
+						frameDimensions.Left = Math.Max(frameDimensions.Left, frameHeader.AnchorX + currDelta.DirectionX);
+						frameDimensions.Top = Math.Max(frameDimensions.Top, frameHeader.AnchorY + currDelta.DirectionY);
+						frameDimensions.Right = Math.Max(frameDimensions.Right, (int)frameHeader.Width - (frameHeader.AnchorX + currDelta.DirectionX));
+						frameDimensions.Bottom = Math.Max(frameDimensions.Bottom, (int)frameHeader.Height - (frameHeader.AnchorY + currDelta.DirectionY));
+
+						// Add delta SLP to render list
+						drawnSlpFrames.Add(new Tuple<int, int, int, SLPFile>(currDeltaFrameId, frameHeader.AnchorX + currDelta.DirectionX, frameHeader.AnchorY + currDelta.DirectionY, currDeltaSlp));
+					}
+				}
+
+				// Render frame if neccessary
+				if(!_precomputedUnitFrames.ContainsKey(frameId))
+				{
+					// Fall back to empty image if there are no graphics to be drawn
+					if(drawnSlpFrames.Count == 0)
+						_precomputedUnitFrames[frameId] = new System.Drawing.Bitmap(1, 1).ToImageSource();
+					else
+					{
+						// Create bitmap
+						// 'using' environment to free memory correctly, avoiding OutOfMemory exceptions
+						using(System.Drawing.Bitmap currFrame = new System.Drawing.Bitmap(frameDimensions.Left + frameDimensions.Right, frameDimensions.Top + frameDimensions.Bottom))
+						{
+							// Draw on bitmap
+							using(System.Drawing.Graphics currFrameG = System.Drawing.Graphics.FromImage(currFrame))
+							{
+								// Get main frame
+								System.Drawing.Bitmap primarySlpFrame =
+								(primarySlpFrameHeader == null
+									? null
+									: primarySlp.getFrameAsBitmap((uint)frameId, Pal50500, SLPFile.Masks.Graphic, System.Drawing.Color.FromArgb(0, 0, 0, 0),
+										System.Drawing.Color.FromArgb(100, 100, 100, 100))
+								);
+
+								// Go through render list and render main image and deltas
+								foreach(Tuple<int, int, int, SLPFile> currRenderEntry in drawnSlpFrames)
+								{
+									// Draw main frame?
+									if(currRenderEntry.Item4 == primarySlp)
+									{
+										// Ensure that main frame exists
+										if(primarySlpFrame != null)
+											currFrameG.DrawImage(primarySlpFrame, frameDimensions.Left - primarySlpFrameHeader.AnchorX, frameDimensions.Top - primarySlpFrameHeader.AnchorY);
+									}
+									else
+									{
+										// Draw delta frame
+										currFrameG.DrawImage(currRenderEntry.Item4.getFrameAsBitmap((uint)currRenderEntry.Item1, Pal50500, SLPFile.Masks.Graphic, System.Drawing.Color.FromArgb(0, 0, 0, 0),
+											System.Drawing.Color.FromArgb(100, 100, 100, 100)), frameDimensions.Left - currRenderEntry.Item2, frameDimensions.Top - currRenderEntry.Item3);
+									}
+								}
+							}
+							_precomputedUnitFrames[frameId] = currFrame.ToImageSource();
+						}
+					}
+				}
+
+				// Assign to drawn image objects
+				_drawnImages[a].Source = _precomputedUnitFrames[frameId];
+				_drawnImages[a].Width = _precomputedUnitFrames[frameId].Width;
+				_drawnImages[a].Height = _precomputedUnitFrames[frameId].Height;
+				_anchors[a] = new Point(frameDimensions.Left, frameDimensions.Top); // Frame anchor point
+
+				// Calculate bounds including the anchor point
+				_maxFrameOffsets.Left = Math.Max(_maxFrameOffsets.Left, frameDimensions.Left);
+				_maxFrameOffsets.Right = Math.Max(_maxFrameOffsets.Right, frameDimensions.Right);
+				_maxFrameOffsets.Top = Math.Max(_maxFrameOffsets.Top, frameDimensions.Top);
+				_maxFrameOffsets.Bottom = Math.Max(_maxFrameOffsets.Bottom, frameDimensions.Bottom);
 			}
 
 			// Update positions
@@ -465,6 +542,39 @@ namespace AoEBalancingTool
 				Canvas.SetLeft(_projectileAreaShapes[i], (i % framesPerRow) * maxFrameWidth + userFrameOffset.X + _maxFrameOffsets.Left + projPos.X - _projectileAreaShapes[i].Width / 2);
 				Canvas.SetTop(_projectileAreaShapes[i], (i / framesPerRow) * maxFrameHeight + userFrameOffset.Y + _maxFrameOffsets.Top + projPos.Y - _projectileAreaShapes[i].Height / 2);
 			}
+		}
+
+		/// <summary>
+		/// Calculates a child object frame ID corresponding to the frame count of the base object.
+		/// </summary>
+		/// <param name="baseFrameId">The frame ID of the base object.</param>
+		/// <param name="baseGraphic">The base object.</param>
+		/// <param name="childGraphic">The child object.</param>
+		/// <returns></returns>
+		int GetCorrespondingFrameId(int baseFrameId, Graphic baseGraphic, Graphic childGraphic)
+		{
+			// Calculate total frame count depending on axis mirroring
+			int baseAxisCount = (baseGraphic.MirroringMode > 0 ? baseGraphic.AngleCount / 2 + 1 : baseGraphic.AngleCount);
+			int childAxisCount = (childGraphic.MirroringMode > 0 ? childGraphic.AngleCount / 2 + 1 : childGraphic.AngleCount);
+			int baseFrameCount = baseAxisCount * baseGraphic.FrameCount;
+			int childFrameCount = childAxisCount * childGraphic.FrameCount;
+
+			// Easy case: Base and child axis count are equal
+			if(baseAxisCount == childAxisCount)
+			{
+				// Scale frame counts
+				if(baseFrameCount == childFrameCount)
+					return baseFrameId;
+				if(baseFrameCount > childFrameCount)
+					return baseFrameId / (baseFrameCount / childFrameCount);
+				return baseFrameId * (childFrameCount / baseFrameCount);
+			}
+
+			// Calculate base axis
+			int baseAxis = baseFrameId / baseGraphic.FrameCount;
+
+			// Axis counts differ -> Calculate matching child axis and return first frame
+			return (int)Math.Floor(baseAxis * ((float)childAxisCount / baseAxisCount)) * childGraphic.FrameCount;
 		}
 
 		#endregion
