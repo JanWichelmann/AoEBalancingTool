@@ -16,3 +16,6 @@
 [submodule "BitmapLibrary"]
 	path = BitmapLibrary
 	url = git@github.com:Janworks/BitmapLibrary.git
+[submodule "ScenarioLibrary"]
+	path = ScenarioLibrary
+	url = git@github.com:Janworks/ScenarioLibrary.git
