@@ -78,7 +78,7 @@ namespace AoEBalancingTool
 		#endregion
 
 		#region Functions
-
+		
 		/// <summary>
 		/// Constructor.
 		/// </summary>
@@ -327,12 +327,17 @@ namespace AoEBalancingTool
 		private void FloatingPointTextBox_OnPreviewKeyDown(object sender, KeyEventArgs e)
 		{
 			TextBox senderTB = (TextBox)sender;
-			float val;
-			if(float.TryParse(senderTB.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out val))
+			if(float.TryParse(senderTB.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out float val))
 				if(e.Key == Key.Down)
 					senderTB.Text = (val - 0.1f).ToString(CultureInfo.InvariantCulture);
 				else if(e.Key == Key.Up)
 					senderTB.Text = (val + 0.1f).ToString(CultureInfo.InvariantCulture);
+		}
+
+		private void _exportTestScenarioButton_Click(object sender, RoutedEventArgs e)
+		{
+			// Show dialog
+			new TestScenarioWindow(_balancingFile, _genieFile).ShowDialog();
 		}
 
 		#endregion
@@ -448,5 +453,6 @@ namespace AoEBalancingTool
 		public bool ProjectileWindowIsVisible => _projectileWindow?.IsVisible ?? false;
 
 		#endregion
+
 	}
 }

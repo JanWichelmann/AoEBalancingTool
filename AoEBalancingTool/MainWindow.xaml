@@ -27,6 +27,7 @@
         <plus:SpacedStackPanel Grid.Row="0" Orientation="Horizontal">
             <Button x:Name="_loadDatButton" Click="_loadDatButton_Click" VerticalAlignment="Top">Load base DAT...</Button>
             <Button x:Name="_exportDatButton" Click="_exportDatButton_Click" IsEnabled="{Binding EnableEditorPanel}">Export DAT with changes...</Button>
+            <Button x:Name="_exportTestScenarioButton" Click="_exportTestScenarioButton_Click"  IsEnabled="{Binding EnableEditorPanel}">Export Simulation Scenario...</Button>
         </plus:SpacedStackPanel>
         <plus:SpacedStackPanel Grid.Row="0" Orientation="Horizontal"
                                HorizontalAlignment="Right">

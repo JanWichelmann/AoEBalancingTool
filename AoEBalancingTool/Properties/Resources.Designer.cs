@@ -139,5 +139,15 @@ namespace AoEBalancingTool.Properties {
                 return ResourceManager.GetString("ResourceTypes", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
+        /// </summary>
+        internal static byte[] SimBase {
+            get {
+                object obj = ResourceManager.GetObject("SimBase", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

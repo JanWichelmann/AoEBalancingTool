@@ -59,6 +59,9 @@
     <Compile Include="DiffElementContainers.cs" />
     <Compile Include="DiffElements.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="TestScenarioWindow.xaml.cs">
+      <DependentUpon>TestScenarioWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="FileSelectionWindow.xaml.cs">
       <DependentUpon>FileSelectionWindow.xaml</DependentUpon>
     </Compile>
@@ -73,6 +76,10 @@
     </Compile>
     <Compile Include="SettingBindingExtension.cs" />
     <Compile Include="ValidationRules.cs" />
+    <Page Include="TestScenarioWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="FileSelectionWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -114,6 +121,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <None Include="Resources\simbase.scx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BitmapLibrary\BitmapLibrary\BitmapLibrary.csproj">
