@@ -9,7 +9,7 @@
         Style="{DynamicResource FlatWindowStyle}"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:FileSelectionWindow}"
-        Title="Select files..." Height="225" Width="450">
+        Title="Select files..." Height="270" Width="450">
     <plus:SpacedGrid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -37,6 +37,10 @@
             <TextBlock Grid.Column="0">language_x1_p1.dll file:</TextBlock>
             <TextBox Grid.Column="1" Text="{Binding LanguageX1P1DllFilePath}" />
             <Button x:Name="_browseLanguageX1P1DllFileButton" Grid.Column="2" Click="_browseLanguageX1P1DllFileButton_OnClick">Browse...</Button>
+
+            <TextBlock Grid.Column="0">Mapping file (optional):</TextBlock>
+            <TextBox Grid.Column="1" Text="{Binding MappingFilePath}" ToolTip="Only necessary for modding projects using the TechTreeEditor." />
+            <Button x:Name="_browseMappingFileButton" Grid.Column="2" Click="_browseMappingFileButton_Click">Browse...</Button>
         </plus:SimpleForm>
         <plus:SpacedStackPanel Grid.Row="1" HorizontalAlignment="Right" Orientation="Horizontal">
             <Button x:Name="_okButton" Width="80" Click="_okButton_OnClick">OK</Button>

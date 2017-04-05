@@ -17,7 +17,7 @@ namespace AoEBalancingTool
 		/// <summary>
 		/// The version of the balancing file format.
 		/// </summary>
-		private const int Version = 1;
+		private const int Version = 2;
 
 		#endregion
 
@@ -32,6 +32,11 @@ namespace AoEBalancingTool
 		/// All modifiable researches, indexed by their IDs.
 		/// </summary>
 		private Dictionary<short, ResearchEntry> _researchEntries;
+
+		/// <summary>
+		/// ID mapping file for internal use.
+		/// </summary>
+		private MappingFile _mappingFile;
 
 		#endregion
 
@@ -71,9 +76,13 @@ namespace AoEBalancingTool
 		/// Creates a new empty balancing data object.
 		/// </summary>
 		/// <param name="genieFile">The genie file containing the base values the diffs are build upon.</param>
-		/// <param name="languageFiles">Optional. The language DLL files, sorted by priority, descending. Used for proper name retrieval.</param>
-		public BalancingFile(GenieLibrary.GenieFile genieFile, params string[] languageFiles)
+		/// <param name="languageFiles">The language DLL files, sorted by priority, descending. Used for proper name retrieval.</param>
+		/// <param name="mappingFile">Optional. ID mapping file.</param>
+		public BalancingFile(GenieLibrary.GenieFile genieFile, string[] languageFiles, MappingFile mappingFile = null)
 		{
+			// Remember mapping file
+			_mappingFile = mappingFile;
+
 			// Load language files for proper name display
 			GenieLibrary.LanguageFileWrapper langFileWrapper = new GenieLibrary.LanguageFileWrapper(languageFiles);
 
@@ -248,8 +257,9 @@ namespace AoEBalancingTool
 		/// </summary>
 		/// <param name="genieFile">The genie file containing the base values the diffs are build upon.</param>
 		/// <param name="path">The path to the balancing file.</param>
-		/// <param name="languageFiles">Optional. The language DLL files, sorted by priority, descending. Used for proper name retrieval.</param>
-		public BalancingFile(GenieLibrary.GenieFile genieFile, string path, params string[] languageFiles)
+		/// <param name="languageFiles">The language DLL files, sorted by priority, descending. Used for proper name retrieval.</param>
+		/// <param name="mappingFile">Optional. ID mapping file.</param>
+		public BalancingFile(GenieLibrary.GenieFile genieFile, string path, string[] languageFiles, MappingFile mappingFile = null)
 			: this(genieFile, languageFiles)
 		{
 			// Load file into buffer
@@ -260,14 +270,39 @@ namespace AoEBalancingTool
 			if(version > Version)
 				throw new ArgumentException("The given file was created with a newer version of this program, please consider updating.");
 
+			// Check for embedded mapping file, and create ID conversion functions if necessary
+			Func<short, short> ConvertUnitId = null;
+			Func<short, short> ConvertResearchId = null;
+			MappingFile embeddedMapping = null;
+			if(buffer.ReadByte() == 1)
+			{
+				// Read embedded file
+				embeddedMapping = new MappingFile(buffer);
+				if(mappingFile == null || mappingFile.Hash.SequenceEqual(embeddedMapping.Hash))
+				{
+					// Use embedded file, no conversion required
+					_mappingFile = embeddedMapping;
+					ConvertUnitId = (id) => id;
+					ConvertResearchId = (id) => id;
+				}
+				else
+				{
+					// Use new mapping file, create conversion functions (old DAT ID -> Editor ID -> new DAT ID)
+					_mappingFile = mappingFile;
+					ConvertUnitId = (id) => _mappingFile.UnitMapping.FirstOrDefault(m => m.Value == embeddedMapping.UnitMapping[id]).Key;
+					ConvertResearchId = (id) => _mappingFile.ResearchMapping.FirstOrDefault(m => m.Value == embeddedMapping.ResearchMapping[id]).Key;
+				}
+			}
+			else if(mappingFile != null)
+				throw new ArgumentException("A mapping cannot be added to an existing file. Create a new balancing file instead.");
+
 			// Read unit entries
 			int unitEntryCount = buffer.ReadInteger();
 			for(int i = 0; i < unitEntryCount; ++i)
 			{
 				// Read entry and merge with existing entry
-				short unitId = buffer.ReadShort();
-				if(UnitEntries.ContainsKey(unitId))
-					UnitEntries[unitId].Read(buffer);
+				short unitId = ConvertUnitId(buffer.ReadShort());
+				UnitEntries[unitId].Read(buffer);
 			}
 
 			// Read research entries
@@ -275,9 +310,8 @@ namespace AoEBalancingTool
 			for(int i = 0; i < researchEntryCount; ++i)
 			{
 				// Read entry and merge with existing entry
-				short researchId = buffer.ReadShort();
-				if(ResearchEntries.ContainsKey(researchId))
-					ResearchEntries[researchId].Read(buffer);
+				short researchId = ConvertResearchId(buffer.ReadShort());
+				ResearchEntries[researchId].Read(buffer);
 			}
 		}
 
@@ -293,8 +327,18 @@ namespace AoEBalancingTool
 			// Write version
 			buffer.WriteInteger(Version);
 
+			// Write mapping data, if existing
+			if(_mappingFile == null)
+				buffer.WriteByte(0);
+			else
+			{
+				buffer.WriteByte(1);
+				_mappingFile.WriteData(buffer);
+			}
+
 			// Run through unit list and save unit entries
 			int unitEntryCount = 0;
+			int unitEntryCountOffset = buffer.Position;
 			buffer.WriteInteger(unitEntryCount); // Placeholder
 			foreach(KeyValuePair<short, UnitEntry> ue in UnitEntries)
 			{
@@ -329,7 +373,7 @@ namespace AoEBalancingTool
 			}
 
 			// Write unit entry count
-			buffer.Position = 4;
+			buffer.Position = unitEntryCountOffset;
 			buffer.WriteInteger(unitEntryCount);
 
 			// Write research entry count

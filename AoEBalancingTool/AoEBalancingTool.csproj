@@ -59,6 +59,7 @@
     <Compile Include="DiffElementContainers.cs" />
     <Compile Include="DiffElements.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="MappingFile.cs" />
     <Compile Include="TestScenarioWindow.xaml.cs">
       <DependentUpon>TestScenarioWindow.xaml</DependentUpon>
     </Compile>

@@ -32,7 +32,7 @@
         <plus:SpacedStackPanel Grid.Row="0" Orientation="Horizontal"
                                HorizontalAlignment="Right">
             <Button x:Name="_loadFileButton" Click="_loadFileButton_Click" IsEnabled="{Binding EnableEditorPanel}">Load file...</Button>
-            <Button x:Name="_saveFileButton" Click="_saveFileButton_Click" IsEnabled="{Binding EnableEditorPanel}">Save file...</Button>
+            <Button x:Name="_saveFileButton" Click="_saveFileButton_Click" IsEnabled="{Binding EnableEditorPanel}">Save file</Button>
             <Button x:Name="_saveFileAsButton" Click="_saveFileAsButton_Click" IsEnabled="{Binding EnableEditorPanel}">Save file as...</Button>
         </plus:SpacedStackPanel>
         <TabControl Grid.Row="1" IsEnabled="{Binding EnableEditorPanel}">

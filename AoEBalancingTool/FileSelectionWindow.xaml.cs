@@ -40,6 +40,7 @@ namespace AoEBalancingTool
 			LanguageDllFilePath = Properties.Settings.Default.LanguageDllFilePath;
 			LanguageX1DllFilePath = Properties.Settings.Default.LanguageX1DllFilePath;
 			LanguageX1P1DllFilePath = Properties.Settings.Default.LanguageX1P1DllFilePath;
+			MappingFilePath = Properties.Settings.Default.MappingFilePath;
 		}
 
 		#endregion
@@ -53,6 +54,7 @@ namespace AoEBalancingTool
 			Properties.Settings.Default.LanguageDllFilePath = LanguageDllFilePath;
 			Properties.Settings.Default.LanguageX1DllFilePath = LanguageX1DllFilePath;
 			Properties.Settings.Default.LanguageX1P1DllFilePath = LanguageX1P1DllFilePath;
+			Properties.Settings.Default.MappingFilePath = MappingFilePath;
 
 			// Set dialog result and close
 			DialogResult = true;
@@ -130,6 +132,22 @@ namespace AoEBalancingTool
 			LanguageX1P1DllFilePath = openFileDialog.FileName;
 		}
 
+		private void _browseMappingFileButton_Click(object sender, RoutedEventArgs e)
+		{
+			// Create and show dialog
+			var openFileDialog = new System.Windows.Forms.OpenFileDialog
+			{
+				FileName = File.Exists(MappingFilePath) ? MappingFilePath : "",
+				Filter = "TechTreeEditor mapping files (*.mapping)|*.mapping",
+				Title = "Select mapping file..."
+			};
+			if(openFileDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+				return;
+
+			// Save selected file
+			MappingFilePath = openFileDialog.FileName;
+		}
+
 		#endregion
 
 		#region Properties
@@ -140,6 +158,7 @@ namespace AoEBalancingTool
 		private string _languageDllFilePath;
 		private string _languageX1DllFilePath;
 		private string _languageX1P1DllFilePath;
+		private string _mappingFilePath;
 
 		#endregion
 
@@ -195,6 +214,19 @@ namespace AoEBalancingTool
 			}
 		}
 
+		/// <summary>
+		/// The file path of the mapping file.
+		/// </summary>
+		public string MappingFilePath
+		{
+			get { return _mappingFilePath; }
+			set
+			{
+				_mappingFilePath = value;
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MappingFilePath)));
+			}
+		}
+
 		#endregion
 
 		#region Events
@@ -205,6 +237,5 @@ namespace AoEBalancingTool
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		#endregion
-
 	}
 }

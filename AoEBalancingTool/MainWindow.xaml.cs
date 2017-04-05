@@ -75,10 +75,15 @@ namespace AoEBalancingTool
 		/// </summary>
 		private ProjectileWindow _projectileWindow = null;
 
+		/// <summary>
+		/// The current mapping file. Used internally by the BalancingFile objects.
+		/// </summary>
+		private MappingFile _mappingFile = null;
+
 		#endregion
 
 		#region Functions
-		
+
 		/// <summary>
 		/// Constructor.
 		/// </summary>
@@ -96,12 +101,12 @@ namespace AoEBalancingTool
 				string[] resourceTypeEntryParts = resourceTypeEntry.Split('=');
 				ResourceTypes.Add(new KeyValuePair<short, string>(short.Parse(resourceTypeEntryParts[0]), resourceTypeEntryParts[1].Trim()));
 			}
-			_unitCost1TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
-			_unitCost2TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
-			_unitCost3TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
-			_researchCost1TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
-			_researchCost2TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
-			_researchCost3TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) {Source = this});
+			_unitCost1TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) { Source = this });
+			_unitCost2TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) { Source = this });
+			_unitCost3TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) { Source = this });
+			_researchCost1TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) { Source = this });
+			_researchCost2TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) { Source = this });
+			_researchCost3TypeComboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(ResourceTypes)) { Source = this });
 
 			// Initialize armor class list
 			ArmorClasses = new ObservableCollection<KeyValuePair<ushort, string>>();
@@ -161,8 +166,8 @@ namespace AoEBalancingTool
 					_languageFiles.Add(_currentFileSelectionWindow.LanguageDllFilePath);
 
 				// Load genie file
-				_genieFile =
-					new GenieLibrary.GenieFile(GenieLibrary.GenieFile.DecompressData(new IORAMHelper.RAMBuffer(_currentFileSelectionWindow.BaseGenieFilePath)));
+				_genieFile = new GenieLibrary.GenieFile(GenieLibrary.GenieFile.DecompressData(new IORAMHelper.RAMBuffer(_currentFileSelectionWindow.BaseGenieFilePath)));
+
 			}
 			catch(IOException ex)
 			{
@@ -171,8 +176,20 @@ namespace AoEBalancingTool
 				return;
 			}
 
+			// Check for mapping requirement
+			_mappingFile = null;
+			if(!string.IsNullOrWhiteSpace(_currentFileSelectionWindow.MappingFilePath) && File.Exists(_currentFileSelectionWindow.MappingFilePath))
+			{
+				// Read mapping
+				_mappingFile = new MappingFile(new IORAMHelper.RAMBuffer(_currentFileSelectionWindow.MappingFilePath));
+				if(!_mappingFile.CheckCompabilityToGenieFile(_genieFile))
+					MessageBox.Show($"The given mapping file does not match the given DAT file.");
+			}
+			else if(_genieFile.Researches.Exists(r => r.Name.StartsWith("#BDep")))
+				MessageBox.Show($"This file was probably created using an editor that dynamically reassigns unit and research IDs.\nIt is strongly recommended to reload using a valid mapping file.");
+
 			// Create balancing data object
-			BalancingFile = new BalancingFile(_genieFile, _languageFiles.ToArray());
+			BalancingFile = new BalancingFile(_genieFile, _languageFiles.ToArray(), _mappingFile);
 			_balancingFilePath = "";
 
 			// Set filterable lists
@@ -235,13 +252,18 @@ namespace AoEBalancingTool
 			try
 			{
 				// Load file
-				BalancingFile = new BalancingFile(_genieFile, openFileDialog.FileName, _languageFiles.ToArray());
+				BalancingFile = new BalancingFile(_genieFile, openFileDialog.FileName, _languageFiles.ToArray(), _mappingFile);
 				_balancingFilePath = openFileDialog.FileName;
 			}
 			catch(IOException ex)
 			{
 				// Error
 				MessageBox.Show($"Unable to load given file: {ex.Message}");
+			}
+			catch(KeyNotFoundException)
+			{
+				// Error
+				MessageBox.Show($"The given file and the current DAT are incompatible.");
 			}
 
 			// Set filterable lists
