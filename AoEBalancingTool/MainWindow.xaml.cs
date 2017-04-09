@@ -111,6 +111,8 @@ namespace AoEBalancingTool
 			// Initialize armor class list
 			ArmorClasses = new ObservableCollection<KeyValuePair<ushort, string>>();
 			string[] armorClasses = Properties.Resources.ArmorClasses.Split('\n');
+			if(File.Exists("ArmorClasses.txt"))
+				armorClasses = File.ReadAllText("ArmorClasses.txt").Split('\n');
 			foreach(string armorClassEntry in armorClasses)
 			{
 				// Split current entry into ID and value
