@@ -430,6 +430,14 @@
                                         <TextBox Grid.Column="4"
                                                  Text="{Binding ProjectileSpawningAreaRandomness.Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                                  IsEnabled="{Binding ProjectileSpawningAreaRandomness, Converter={StaticResource NullCheckToBoolConverterObj}}" />
+
+                                        <TextBlock Grid.Column="0"
+                                                   IsEnabled="{Binding SecondaryProjectileName, Converter={StaticResource NullCheckToBoolConverterObj}}">
+                                            Secondary projectile:
+                                        </TextBlock>
+                                        <TextBlock Grid.Column="1" Grid.ColumnSpan="3"
+                                                 Text="{Binding SecondaryProjectileName}"
+                                                 IsEnabled="{Binding SecondaryProjectileName, Converter={StaticResource NullCheckToBoolConverterObj}}" />
                                     </plus:SimpleForm>
                                 </GroupBox>
                                 <GroupBox Header="Attack values" Margin="3"

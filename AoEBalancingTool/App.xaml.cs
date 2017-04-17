@@ -12,6 +12,12 @@ namespace AoEBalancingTool
 	/// </summary>
 	public partial class App : Application
 	{
+		public App()
+		{
+			// Magic to force .NET 4 behaviour when entering floating point numbers
+			FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty = false;
+		}
+
 		private void Application_Exit(object sender, ExitEventArgs e)
 		{
 			// Save settings
